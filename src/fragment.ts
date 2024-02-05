@@ -14,11 +14,12 @@ pageLoad.then(() => {
 				      url = URL.createObjectURL(blob);
 
 				window.location.href = url;
+
+			} else {
+				text += decode.decode(value);
+
+				reader.read().then(appendText);
 			}
-
-			text += decode.decode(value);
-
-			reader.read().then(appendText);
 		      };
 
 		reader.read().then(appendText);
