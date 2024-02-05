@@ -1,0 +1,1 @@
+../../../jslib/lib.ts/bbcode_tags.ts
