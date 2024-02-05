@@ -1,9 +1,26 @@
 import pageLoad from './lib/load.js';
 
 pageLoad.then(() => {
-	const fragment = window.location.hash.slice(1),
-	      blob = new Blob([fragment], {"type": "text/plain"}),
-	      url = URL.createObjectURL(blob);
+	fetch("data:application/octet-stream;base64," + window.location.hash.slice(1))
+	.then(data => data.blob())
+	.then(b => b.stream().pipeThrough<Uint8Array>(new DecompressionStream("deflate-raw")).getReader())
+	.then(reader => {
+		let text = "";
 
-	window.location.href = url;
+		const decode = new TextDecoder(),
+		      appendText =({done, value}: {done: boolean, value: Uint8Array}) => {
+			if (done) {
+				const blob = new Blob([text], {"type": "text/plain"}),
+				      url = URL.createObjectURL(blob);
+
+				window.location.href = url;
+			}
+
+			text += decode.decode(value);
+
+			reader.read().then(appendText);
+		      };
+
+		reader.read().then(appendText);
+	});
 });
