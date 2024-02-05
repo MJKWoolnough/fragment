@@ -50,24 +50,21 @@ done;
 
 if [ -n "$key" ]; then
 	type="$(echo "$key" | tr a-z A-Z)"
+fi;
 
+declare tmpFile="$(mktemp)";
+
+{
+	echo -n "$type";
+	cat "$src";
+} > "$tmpFile";
+
+if [ -n "$key" ]; then
 	# sign doc
 	# append signature to doc
 	# append signature length to doc
 fi;
 
-declare isTmp=false;
-
-if [ "$src" = "-" ]; then
-	isTmp=true;
-
-	src="$(mktemp)";
-
-	cat > "$src";
-fi;
-
 echo "http://127.0.0.1:8080/#$(zopfli --deflate -m "$src" -c | base64 | tr -d '\n')";
 
-if $isTmp; then
-	rm -f "$src";
-fi;
+rm -f "$tmpFile";
