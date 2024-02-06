@@ -59,12 +59,12 @@ declare tmpFile="$(mktemp)";
 	cat "$src";
 } > "$tmpFile";
 
-if [ -n "$key" ]; then
+#if [ -n "$key" ]; then
 	# sign doc
 	# append signature to doc
 	# append signature length to doc
-fi;
+#fi;
 
-echo "http://127.0.0.1:8080/#$(zopfli --deflate -m "$src" -c | base64 | tr -d '\n')";
+echo "http://127.0.0.1:8080/#$(zopfli --deflate -m "$tmpFile" -c | base64 | tr -d '\n')";
 
 rm -f "$tmpFile";
