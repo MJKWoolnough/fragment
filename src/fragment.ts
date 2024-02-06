@@ -5,18 +5,21 @@ pageLoad.then(() => {
 	.then(data => data.blob())
 	.then(b => b.stream().pipeThrough<Uint8Array>(new DecompressionStream("deflate-raw")).getReader())
 	.then(reader => {
-		let text = "";
+		let data = new Uint8Array(0);
 
-		const decode = new TextDecoder(),
-		      appendText =({done, value}: {done: boolean, value: Uint8Array}) => {
+		const appendText =({done, value}: {done: boolean, value: Uint8Array}) => {
 			if (done) {
-				const blob = new Blob([text], {"type": "text/plain"}),
+				const blob = new Blob([data], {"type": "text/plain"}),
 				      url = URL.createObjectURL(blob);
 
 				window.location.href = url;
-
 			} else {
-				text += decode.decode(value);
+				const newData = new Uint8Array(data.length + value.length);
+
+				newData.set(data);
+				newData.set(value, data.length);
+
+				data = newData;
 
 				reader.read().then(appendText);
 			}
