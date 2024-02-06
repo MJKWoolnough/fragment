@@ -15,7 +15,7 @@ pageLoad.then(() => {
 	.then(reader => {
 		let data = new Uint8Array(0);
 
-		const appendText =({done, value}: {done: boolean, value: Uint8Array}) => {
+		const appendText =({done, value}: ReadableStreamReadResult<Uint8Array>) => {
 			if (done) {
 				const blob = new Blob([data], {"type": "text/plain"}),
 				      url = URL.createObjectURL(blob);
