@@ -29,10 +29,11 @@ pageLoad.then(() => {
 
 				data = newData;
 
-				reader.read().then(appendText);
+				return reader.read().then(appendText);
 			}
 		      };
 
-		reader.read().then(appendText);
-	});
+		return reader.read().then(appendText);
+	})
+	.catch(err => document.body.textContent = "Error: " + err);
 });
