@@ -1,7 +1,15 @@
 import pageLoad from './lib/load.js';
 
 pageLoad.then(() => {
-	fetch("data:application/octet-stream;base64," + window.location.hash.slice(1))
+	const hash = window.location.hash.slice(1);
+
+	if (!hash) {
+		document.body.textContent = "No Fragment";
+
+		return;
+	}
+
+	fetch("data:application/octet-stream;base64," + hash)
 	.then(data => data.blob())
 	.then(b => b.stream().pipeThrough<Uint8Array>(new DecompressionStream("deflate-raw")).getReader())
 	.then(reader => {
