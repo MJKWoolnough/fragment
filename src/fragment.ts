@@ -26,9 +26,15 @@ pageLoad.then(() => hash ? fetch("data:application/octet-stream;base64," + hash)
 	return reader.read().then(appendText);
 })
 .then(data => {
+	if (!data.length) {
+		return Promise.reject("No Data");
+	}
+
 	const blob = new Blob([data], {"type": "text/plain"}),
 	      url = URL.createObjectURL(blob);
 
 	window.location.href = url;
+
+	return;
 })
 .catch(err => document.body.textContent = "Error: " + err);
