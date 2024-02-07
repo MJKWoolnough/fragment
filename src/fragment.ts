@@ -22,7 +22,7 @@ const hash = window.location.hash.slice(1),
 
 	withMime(div.innerHTML, "text/html");
       },
-      parseCSV = (contents: Uint8Array) => {
+      parseCSV = (contents: Uint8Array, delim = " ") => {
 	const decoder = new TextDecoder(),
 	      tokenCell = 1,
 	      tokenNL = 2,
@@ -58,7 +58,7 @@ const hash = window.location.hash.slice(1),
 			}
 		}
 
-		tk.exceptRun(" ");
+		tk.exceptRun(delim);
 
 		return tk.return(tokenCell, skipChar);
 	      };
@@ -126,6 +126,7 @@ pageLoad.then(() => hash ? fetch("data:application/octet-stream;base64," + hash)
 	case 'c':
 		return parseCSV(contents);
 	case 't':
+		return parseCSV(contents, "\t");
 	}
 })
 .catch(err => document.body.textContent = "Error: " + err);
