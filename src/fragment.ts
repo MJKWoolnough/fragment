@@ -12,10 +12,10 @@ const hash = window.location.hash.slice(1),
 
 	window.location.href = url;
       },
+      decodeText = (data: Uint8Array) => (new TextDecoder()).decode(data),
       processBBCode = (data: string) => parseBBCode(allBBCodeTags, data),
       processToHTML = (data: Uint8Array, fn: (contents: string) => DocumentFragment) => {
-	const decoder = new TextDecoder(),
-	      dom = fn(decoder.decode(data)),
+	const dom = fn(decodeText(data)),
 	      div = createElement("div");
 
 	div.appendChild(dom);
@@ -28,8 +28,7 @@ const hash = window.location.hash.slice(1),
 	return child ? elem.appendChild(child) : elem;
       },
       parseCSV = (contents: Uint8Array, delim = " ") => {
-	const decoder = new TextDecoder(),
-	      tokenCell = 1,
+	const tokenCell = 1,
 	      tokenNL = 2,
 	      tokenRow = 3,
 	      table = createElement("table", createElement("tbody")),
@@ -68,7 +67,7 @@ const hash = window.location.hash.slice(1),
 		return tk.return(tokenCell, skipChar);
 	      };
 
-	for (const row of parser(decoder.decode(contents), parseCell, p => {
+	for (const row of parser(decodeText(contents), parseCell, p => {
 		p.exceptRun(tokenNL);
 		p.next();
 
