@@ -1,5 +1,7 @@
 import pageLoad from './lib/load.js';
 import parseMarkdown from './lib/markdown.js';
+import parseBBCode from './lib/bbcode.js';
+import {all as allBBCodeTags} from './lib/bbcode_tags.js';
 
 const hash = window.location.hash.slice(1),
       withMime = (data: BlobPart, mime: string) => {
@@ -11,6 +13,15 @@ const hash = window.location.hash.slice(1),
       processMarkdown = (data: Uint8Array) => {
 	const decoder = new TextDecoder(),
 	      dom = parseMarkdown(decoder.decode(data)),
+	      div = document.createElement("div");
+
+	div.appendChild(dom);
+
+	withMime(div.innerHTML, "text/html");
+      },
+      processBBCode = (data: Uint8Array) => {
+	const decoder = new TextDecoder(),
+	      dom = parseBBCode(allBBCodeTags, decoder.decode(data)),
 	      div = document.createElement("div");
 
 	div.appendChild(dom);
@@ -59,6 +70,7 @@ pageLoad.then(() => hash ? fetch("data:application/octet-stream;base64," + hash)
 	case 'm':
 		return processMarkdown(contents);
 	case 'b':
+		return processBBCode(contents);
 	case 'c':
 	case 't':
 	}
