@@ -16,18 +16,23 @@ const hash = window.location.hash.slice(1),
       processToHTML = (data: Uint8Array, fn: (contents: string) => DocumentFragment) => {
 	const decoder = new TextDecoder(),
 	      dom = fn(decoder.decode(data)),
-	      div = document.createElement("div");
+	      div = createElement("div");
 
 	div.appendChild(dom);
 
 	withMime(div.innerHTML, "text/html");
+      },
+      createElement = (name: string | Element, child?: Element) => {
+	const elem = name instanceof Element ? name : document.createElement(name);
+
+	return child ? elem.appendChild(child) : elem;
       },
       parseCSV = (contents: Uint8Array, delim = " ") => {
 	const decoder = new TextDecoder(),
 	      tokenCell = 1,
 	      tokenNL = 2,
 	      tokenRow = 3,
-	      table = document.createElement("table").appendChild(document.createElement("tbody")),
+	      table = createElement("table", createElement("tbody")),
 	      skipChar = (tk: Tokeniser) => {
 		tk.next();
 
@@ -69,11 +74,11 @@ const hash = window.location.hash.slice(1),
 
 		return p.return(tokenRow);
 	})) {
-		const tr = table.appendChild(document.createElement("tr"));
+		const tr = createElement(table, createElement("tr"))
 
 		for (const cell of row.data) {
 			if (cell.type !== tokenNL) {
-				tr.appendChild(document.createElement("td")).append(cell.data.charAt(0) === "\"" ? cell.data.slice(1, -1).replaceAll("\"\"", "\"") : cell.data);
+				createElement(tr, createElement("td")).textContent = cell.data.charAt(0) === "\"" ? cell.data.slice(1, -1).replaceAll("\"\"", "\"") : cell.data;
 			}
 		}
 	}
