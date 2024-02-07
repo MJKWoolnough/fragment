@@ -10,18 +10,10 @@ const hash = window.location.hash.slice(1),
 
 	window.location.href = url;
       },
-      processMarkdown = (data: Uint8Array) => {
+      processBBCode = (data: string) => parseBBCode(allBBCodeTags, data),
+      processToHTML = (data: Uint8Array, fn: (contents: string) => DocumentFragment) => {
 	const decoder = new TextDecoder(),
-	      dom = parseMarkdown(decoder.decode(data)),
-	      div = document.createElement("div");
-
-	div.appendChild(dom);
-
-	withMime(div.innerHTML, "text/html");
-      },
-      processBBCode = (data: Uint8Array) => {
-	const decoder = new TextDecoder(),
-	      dom = parseBBCode(allBBCodeTags, decoder.decode(data)),
+	      dom = fn(decoder.decode(data)),
 	      div = document.createElement("div");
 
 	div.appendChild(dom);
@@ -68,9 +60,9 @@ pageLoad.then(() => hash ? fetch("data:application/octet-stream;base64," + hash)
 	case 's':
 		return withMime(contents, "image/svg+xml");
 	case 'm':
-		return processMarkdown(contents);
+		return processToHTML(contents, parseMarkdown);
 	case 'b':
-		return processBBCode(contents);
+		return processToHTML(contents, processBBCode);
 	case 'c':
 	case 't':
 	}
