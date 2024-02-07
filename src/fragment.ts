@@ -1,7 +1,9 @@
+import type {Token, TokenFn, Tokeniser} from './lib/parser.js';
 import pageLoad from './lib/load.js';
 import parseMarkdown from './lib/markdown.js';
 import parseBBCode from './lib/bbcode.js';
 import {all as allBBCodeTags} from './lib/bbcode_tags.js';
+import parser from './lib/parser.js';
 
 const hash = window.location.hash.slice(1),
       withMime = (data: BlobPart, mime: string) => {
@@ -19,6 +21,64 @@ const hash = window.location.hash.slice(1),
 	div.appendChild(dom);
 
 	withMime(div.innerHTML, "text/html");
+      },
+      parseCSV = (contents: Uint8Array) => {
+	const decoder = new TextDecoder(),
+	      tokenCell = 1,
+	      tokenNL = 2,
+	      tokenRow = 3,
+	      table = document.createElement("table").appendChild(document.createElement("tbody")),
+	      skipChar = (tk: Tokeniser) => {
+		tk.next();
+
+		tk.get();
+
+		return parseCell(tk);
+	      },
+	      parseCell = (tk: Tokeniser): [Token, TokenFn] => {
+		if (!tk.peek()) {
+			return tk.done();
+		} else if (tk.accept("\n")) {
+			return tk.return(tokenNL, skipChar);
+		}
+		if (tk.accept("\"")) {
+			while (true) {
+				switch (tk.exceptRun("\"")) {
+				default:
+					return tk.return(tokenCell);
+				case "\"":
+					tk.next();
+
+					if (tk.peek() !== "\"") {
+						return tk.return(tokenCell, skipChar);
+					}
+
+					tk.next();
+				}
+			}
+		}
+
+		tk.exceptRun(" ");
+
+		return tk.return(tokenCell, skipChar);
+	      };
+
+	for (const row of parser(decoder.decode(contents), parseCell, p => {
+		p.exceptRun(tokenNL);
+		p.next();
+
+		return p.return(tokenRow);
+	})) {
+		const tr = table.appendChild(document.createElement("tr"));
+
+		for (const cell of row.data) {
+			if (cell.type !== tokenNL) {
+				tr.appendChild(document.createElement("td")).append(cell.data);
+			}
+		}
+	}
+
+	withMime(table.outerHTML, "text/html");
       };
 
 pageLoad.then(() => hash ? fetch("data:application/octet-stream;base64," + hash) : Promise.reject("No Fragment"))
@@ -64,6 +124,7 @@ pageLoad.then(() => hash ? fetch("data:application/octet-stream;base64," + hash)
 	case 'b':
 		return processToHTML(contents, processBBCode);
 	case 'c':
+		return parseCSV(contents);
 	case 't':
 	}
 })
