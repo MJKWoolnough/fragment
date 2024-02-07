@@ -73,7 +73,7 @@ const hash = window.location.hash.slice(1),
 
 		for (const cell of row.data) {
 			if (cell.type !== tokenNL) {
-				tr.appendChild(document.createElement("td")).append(cell.data);
+				tr.appendChild(document.createElement("td")).append(cell.data.charAt(0) === "\"" ? cell.data.slice(1, -1).replaceAll("\"\"", "\"") : cell.data);
 			}
 		}
 	}
