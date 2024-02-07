@@ -41,7 +41,8 @@ const hash = window.location.hash.slice(1),
 	      parseCell = (tk: Tokeniser): [Token, TokenFn] => {
 		if (!tk.peek()) {
 			return tk.done();
-		} else if (tk.accept("\n")) {
+		}
+		if (tk.accept("\n")) {
 			return tk.return(tokenNL, skipChar);
 		}
 		if (tk.accept("\"")) {
