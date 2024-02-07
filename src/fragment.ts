@@ -15,10 +15,9 @@ const hash = window.location.hash.slice(1),
       decodeText = (data: Uint8Array) => (new TextDecoder()).decode(data),
       processBBCode = (data: string) => parseBBCode(allBBCodeTags, data),
       processToHTML = (data: Uint8Array, fn: (contents: string) => DocumentFragment) => {
-	const dom = fn(decodeText(data)),
-	      div = createElement("div");
+	const div = createElement("div");
 
-	div.appendChild(dom);
+	div.appendChild(fn(decodeText(data)));
 
 	withMime(div.innerHTML, "text/html");
       },
