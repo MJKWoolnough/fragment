@@ -1,4 +1,5 @@
 import pageLoad from './lib/load.js';
+import parseMarkdown from './lib/markdown.js';
 
 const hash = window.location.hash.slice(1),
       withMime = (data: BlobPart, mime: string) => {
@@ -6,6 +7,15 @@ const hash = window.location.hash.slice(1),
 	      url = URL.createObjectURL(blob);
 
 	window.location.href = url;
+      },
+      processMarkdown = (data: Uint8Array) => {
+	const decoder = new TextDecoder(),
+	      dom = parseMarkdown(decoder.decode(data)),
+	      div = document.createElement("div");
+
+	div.appendChild(dom);
+
+	withMime(div.innerHTML, "text/html");
       };
 
 pageLoad.then(() => hash ? fetch("data:application/octet-stream;base64," + hash) : Promise.reject("No Fragment"))
@@ -47,6 +57,7 @@ pageLoad.then(() => hash ? fetch("data:application/octet-stream;base64," + hash)
 	case 's':
 		return withMime(contents, "image/svg+xml");
 	case 'm':
+		return processMarkdown(contents);
 	case 'b':
 	case 'c':
 	case 't':
