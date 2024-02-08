@@ -108,7 +108,7 @@ const hash = window.location.hash.slice(1),
 		table.push(r);
 	}
 
-	withMime(`<html><head><title>Table</title><script type=\"module\">(${makeTable.toString()}(${JSON.stringify(table)}))</script></head><body></body></html>`, "text/html");
+	withMime(`<!DOCTYPE html>\n<html><head><title>Table</title><script type=\"module\">(${makeTable.toString()}(${JSON.stringify(table)}))</script></head><body></body></html>`, "text/html");
       };
 
 pageLoad.then(() => hash ? fetch("data:application/octet-stream;base64," + hash) : Promise.reject("No Fragment"))
