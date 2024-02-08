@@ -1,4 +1,4 @@
-import type {Token, TokenFn, Tokeniser} from './lib/parser.js';
+import type {Phrase, Phraser, PhraserFn, Token, TokenFn, Tokeniser} from './lib/parser.js';
 import pageLoad from './lib/load.js';
 import parseMarkdown from './lib/markdown.js';
 import parseBBCode from './lib/bbcode.js';
@@ -45,7 +45,9 @@ const hash = window.location.hash.slice(1),
 	      tokenRow = 3,
 	      table: string[][] = [],
 	      skipChar = (tk: Tokeniser) => {
-		tk.next();
+		if (tk.next() === "\n") {
+			return tk.return(tokenNL, skipChar);
+		}
 
 		tk.get();
 
@@ -55,14 +57,11 @@ const hash = window.location.hash.slice(1),
 		if (!tk.peek()) {
 			return tk.done();
 		}
-		if (tk.accept("\n")) {
-			return tk.return(tokenNL, skipChar);
-		}
 		if (tk.accept("\"")) {
 			while (true) {
 				switch (tk.exceptRun("\"")) {
 				default:
-					return tk.return(tokenCell);
+					return tk.return(tokenCell, skipChar);
 				case "\"":
 					tk.next();
 
@@ -75,17 +74,29 @@ const hash = window.location.hash.slice(1),
 			}
 		}
 
-		tk.exceptRun(delim);
+		tk.exceptRun(delim+"\n");
 
 		return tk.return(tokenCell, skipChar);
-	      };
-
-	for (const row of parser(decodeText(contents), parseCell, p => {
-		p.exceptRun(tokenNL);
+	      },
+	      skipNL = (p: Phraser) => {
 		p.next();
+		p.get();
 
-		return p.return(tokenRow);
-	})) {
+		return parseRow(p);
+	      },
+	      parseRow = (p: Phraser): [Phrase, PhraserFn] => {
+		if (p.exceptRun(tokenNL) < 0) {
+			return p.return(tokenRow);
+		}
+
+		return p.return(tokenRow, skipNL);
+	      }
+
+	for (const row of parser(decodeText(contents), parseCell, parseRow)) {
+		if (row.type < 0){
+			break;
+		}
+
 		const r: string[] = [];
 
 		for (const cell of row.data) {
