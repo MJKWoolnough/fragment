@@ -15,11 +15,9 @@ const hash = window.location.hash.slice(1),
       decodeText = (data: Uint8Array) => (new TextDecoder()).decode(data),
       processBBCode = (data: string) => parseBBCode(allBBCodeTags, data),
       processToHTML = (data: Uint8Array, fn: (contents: string) => DocumentFragment) => {
-	const div = createElement("div");
+	const dom = fn(decodeText(data));
 
-	div.appendChild(fn(decodeText(data)));
-
-	withMime(div.innerHTML, "text/html");
+	withMime(Array.from(dom.children).reduce((t, e) => t + e.outerHTML, ""), "text/html");
       },
       createElement = (name: string | Element, child?: Element) => {
 	const elem = name instanceof Element ? name : document.createElement(name);
