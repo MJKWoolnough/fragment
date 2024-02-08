@@ -106,7 +106,7 @@ const hash = window.location.hash.slice(1),
 		table.push(r);
 	}
 
-	withMime(`<!DOCTYPE html>\n<html><head><title>Table</title><script type=\"module\">(${makeTable.toString()})(${JSON.stringify(table)})</script></head><body></body></html>`, "text/html");
+	withMime(`<!DOCTYPE html>\n<html><head><title>Table</title><style type="text/css">table{background-color:#f8f8f8;color:#000;border-collapse: collapse;}th{padding:0.5em 1em;background-color: #ddd}th,td{border:1px solid #000}</style><script type="module">(${makeTable.toString()})(${JSON.stringify(table)})</script></head><body></body></html>`, "text/html");
       };
 
 pageLoad.then(() => hash ? fetch("data:application/octet-stream;base64," + hash) : Promise.reject("No Fragment"))
