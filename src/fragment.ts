@@ -61,15 +61,13 @@ const hash = window.location.hash.slice(1),
 			while (true) {
 				switch (tk.exceptRun("\"")) {
 				default:
-					return tk.return(tokenCell, skipChar);
+					return tk.return(tokenCell);
 				case "\"":
 					tk.next();
 
-					if (tk.peek() !== "\"") {
+					if (!tk.accept("\"")) {
 						return tk.return(tokenCell, skipChar);
 					}
-
-					tk.next();
 				}
 			}
 		}
