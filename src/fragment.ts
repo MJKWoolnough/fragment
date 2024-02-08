@@ -19,16 +19,31 @@ const hash = window.location.hash.slice(1),
 
 	withMime(Array.from(dom.children).reduce((t, e) => t + e.outerHTML, ""), "text/html");
       },
-      createElement = (name: string | Element, child?: Element) => {
-	const elem = name instanceof Element ? name : document.createElement(name);
+      makeTable = (data: string[][]) => {
+	const createElement = (name: string | Element, child?: string | Element | Element[]) => {
+		const elem = name instanceof Element ? name : document.createElement(name);
 
-	return child ? elem.appendChild(child) : elem;
+		if (typeof child === "string") {
+			elem.textContent = child;
+		} else if (child instanceof Array) {
+			elem.append(...child);
+		} else if (child instanceof Element) {
+			elem.append(child);
+		}
+
+		return elem;
+	      };
+
+	document.body.append(createElement("table", [
+		createElement("thead", Array.from({"length": data.reduce((n, r) => Math.max(n, r.length), 0)}, (_, n) => createElement("th", n+""))),
+		createElement("tbody", data.map(row => createElement("tr", row.map(cell => createElement("td", cell)))))
+	]));
       },
       parseCSV = (contents: Uint8Array, delim = " ") => {
 	const tokenCell = 1,
 	      tokenNL = 2,
 	      tokenRow = 3,
-	      table = createElement("table", createElement("tbody")),
+	      table: string[][] = [],
 	      skipChar = (tk: Tokeniser) => {
 		tk.next();
 
@@ -71,16 +86,18 @@ const hash = window.location.hash.slice(1),
 
 		return p.return(tokenRow);
 	})) {
-		const tr = createElement(table, createElement("tr"))
+		const r: string[] = [];
 
 		for (const cell of row.data) {
 			if (cell.type !== tokenNL) {
-				createElement(tr, createElement("td")).textContent = cell.data.charAt(0) === "\"" ? cell.data.slice(1, -1).replaceAll("\"\"", "\"") : cell.data;
+				r.push(cell.data);
 			}
 		}
+
+		table.push(r);
 	}
 
-	withMime(table.outerHTML, "text/html");
+	withMime(`<html><head><title>Table</title><script type=\"module\">(${makeTable.toString()}(${JSON.stringify(table)}))</script></head><body></body></html>`, "text/html");
       };
 
 pageLoad.then(() => hash ? fetch("data:application/octet-stream;base64," + hash) : Promise.reject("No Fragment"))
