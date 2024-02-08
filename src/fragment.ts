@@ -46,7 +46,7 @@ const hash = window.location.hash.slice(1),
 	      table: string[][] = [],
 	      skipChar = (tk: Tokeniser) => {
 		if (tk.next() === "\n") {
-			return tk.return(tokenNL, skipChar);
+			return tk.return(tokenNL, parseCell);
 		}
 
 		tk.get();
