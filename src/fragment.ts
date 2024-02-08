@@ -39,7 +39,7 @@ const hash = window.location.hash.slice(1),
 		createElement("tbody", data.map(row => createElement("tr", row.map(cell => createElement("td", cell)))))
 	]));
       },
-      parseCSV = (contents: Uint8Array, delim = " ") => {
+      parseCSV = (contents: Uint8Array, delim = ",") => {
 	const tokenCell = 1,
 	      tokenNL = 2,
 	      tokenRow = 3,
