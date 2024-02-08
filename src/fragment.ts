@@ -99,7 +99,7 @@ const hash = window.location.hash.slice(1),
 
 		for (const cell of row.data) {
 			if (cell.type !== tokenNL) {
-				r.push(cell.data);
+				r.push(cell.data[0] === "\"" ? cell.data.slice(1, -1).replace("\"\"", "\"")  : cell.data);
 			}
 		}
 
