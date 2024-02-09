@@ -33,8 +33,16 @@ const hash = window.location.hash.slice(1),
 			elem.append(child);
 		}
 	      },
-	      createElement = (name: string | Element, child?: Children) => {
+	      createElement = (name: string | Element, child?: Children, params?: Record<string, string | Function>) => {
 		const elem = name instanceof Element ? name : document.createElement(name);
+
+		for (const [param, val] of Object.entries(params ?? {})) {
+			if (val instanceof Function) {
+				elem.addEventListener(param.slice(2) as keyof ElementEventMap, val as EventListener);
+			} else {
+				elem.setAttribute(param, val);
+			}
+		}
 
 		if (child) {
 			appendChildren(elem, child);
