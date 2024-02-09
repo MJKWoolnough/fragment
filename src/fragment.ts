@@ -32,11 +32,12 @@ const hash = window.location.hash.slice(1),
 		}
 
 		return elem;
-	      };
+	      },
+	      max = data.reduce((n, r) => Math.max(n, r.length), 0);
 
 	document.body.append(createElement("table", [
-		createElement("thead", Array.from({"length": data.reduce((n, r) => Math.max(n, r.length), 0)}, (_, n) => createElement("th", n+""))),
-		createElement("tbody", data.map(row => createElement("tr", row.map(cell => createElement("td", cell)))))
+		createElement("thead", Array.from({"length": max}, (_, n) => createElement("th", n+""))),
+		createElement("tbody", data.map(row => createElement("tr", row.map(cell => createElement("td", cell)).concat(Array.from({"length": max - row.length}, _ => createElement("td"))))))
 	]));
       },
       parseCSV = (contents: Uint8Array, delim = ",") => {
