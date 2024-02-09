@@ -62,6 +62,8 @@ const hash = window.location.hash.slice(1),
 		return (r ? colName(q) : (q !== 1 ? colName(q - 1) : "")) + colName(r);
 	      },
 	      stringSort = new Intl.Collator().compare,
+	      numberSort = (a: string, b: string) => parseFloat(a || "-Infinity") - parseFloat(b || "-Infinity"),
+	      sorters = Array.from({"length": max}, (_, n) => data.every(row => row.length < n || !isNaN(parseFloat(row[n]))) ? numberSort : stringSort),
 	      tbody = createElement("tbody", data.map(row => createElement("tr", row.map(cell => createElement("td", cell)).concat(Array.from({"length": max - row.length}, _ => createElement("td"))))));
 
 	let sorted = -1;
@@ -76,7 +78,7 @@ const hash = window.location.hash.slice(1),
 				classes.add("s");
 				sorted = n;
 
-				tbody.append(...Array.from(tbody.children).sort((a, b) => stringSort(a.children[n]?.textContent ?? "", b.children[n]?.textContent ?? "")))
+				tbody.append(...Array.from(tbody.children).sort((a, b) => sorters[n](a.children[n]?.textContent ?? "", b.children[n]?.textContent ?? "")))
 			} else {
 				classes.toggle("r");
 
