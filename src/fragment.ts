@@ -67,24 +67,24 @@ const hash = window.location.hash.slice(1),
 	let sorted = -1;
 
 	document.body.append(createElement("table", [
-	 createElement("thead", Array.from({"length": max}, (_, n) => createElement("th", colName(n + 1), {"onclick": function (this: Element) {
-		const classes = this.classList;
+		createElement("thead", Array.from({"length": max}, (_, n) => createElement("th", colName(n + 1), {"onclick": function (this: Element) {
+			const classes = this.classList;
 
-		if (n !== sorted) {
-			document.getElementsByClassName("s")[0]?.removeAttribute("class");
+			if (n !== sorted) {
+				document.getElementsByClassName("s")[0]?.removeAttribute("class");
 
-			classes.add("s");
-			sorted = n;
+				classes.add("s");
+				sorted = n;
 
-			tbody.append(...Array.from(tbody.children).sort((a, b) => stringSort(a.children[n]?.textContent ?? "", b.children[n]?.textContent ?? "")))
-		} else {
-			classes.toggle("r");
+				tbody.append(...Array.from(tbody.children).sort((a, b) => stringSort(a.children[n]?.textContent ?? "", b.children[n]?.textContent ?? "")))
+			} else {
+				classes.toggle("r");
 
-			tbody.append(...Array.from(tbody.children).reverse())
-		}
-
-	}}))),
-	tbody]));
+				tbody.append(...Array.from(tbody.children).reverse())
+			}
+		}}))),
+		tbody
+	]));
       },
       parseCSV = (contents: Uint8Array, delim = ",") => {
 	const tokenCell = 1,
