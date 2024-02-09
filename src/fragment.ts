@@ -5,6 +5,8 @@ import parseBBCode from './lib/bbcode.js';
 import {all as allBBCodeTags} from './lib/bbcode_tags.js';
 import parser from './lib/parser.js';
 
+type Children = string | Element | Children[];
+
 const hash = window.location.hash.slice(1),
       withMime = (data: BlobPart, mime: string) => {
 	const blob = new Blob([data], {"type": mime}),
@@ -20,15 +22,22 @@ const hash = window.location.hash.slice(1),
 	withMime(Array.from(dom.children).reduce((t, e) => t + e.outerHTML, ""), "text/html");
       },
       makeTable = (data: string[][]) => {
-	const createElement = (name: string | Element, child?: string | Element | Element[]) => {
-		const elem = name instanceof Element ? name : document.createElement(name);
-
+	const appendChildren = (elem: Element, child: Children) => {
 		if (typeof child === "string") {
 			elem.textContent = child;
 		} else if (child instanceof Array) {
-			elem.append(...child);
-		} else if (child instanceof Element) {
+			for (const c of child) {
+				appendChildren(elem, c);
+			}
+		} else {
 			elem.append(child);
+		}
+	      },
+	      createElement = (name: string | Element, child?: Children) => {
+		const elem = name instanceof Element ? name : document.createElement(name);
+
+		if (child) {
+			appendChildren(elem, child);
 		}
 
 		return elem;
