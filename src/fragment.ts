@@ -50,10 +50,20 @@ const hash = window.location.hash.slice(1),
 
 		return elem;
 	      },
-	      max = data.reduce((n, r) => Math.max(n, r.length), 0);
+	      max = data.reduce((n, r) => Math.max(n, r.length), 0),
+	      colName = (n: number): string => {
+		if (n < 26) {
+			return String.fromCharCode(64 + (n || 26));
+		}
+
+		const q = (n / 26) | 0,
+		      r = n % 26;
+
+		return (r ? colName(q) : (q !== 1 ? colName(q - 1) : "")) + colName(r);
+	      };
 
 	document.body.append(createElement("table", [
-		createElement("thead", Array.from({"length": max}, (_, n) => createElement("th", n+""))),
+		createElement("thead", Array.from({"length": max}, (_, n) => createElement("th", colName(n + 1)))),
 		createElement("tbody", data.map(row => createElement("tr", row.map(cell => createElement("td", cell)).concat(Array.from({"length": max - row.length}, _ => createElement("td"))))))
 	]));
       },
