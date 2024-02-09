@@ -60,12 +60,31 @@ const hash = window.location.hash.slice(1),
 		      r = n % 26;
 
 		return (r ? colName(q) : (q !== 1 ? colName(q - 1) : "")) + colName(r);
-	      };
+	      },
+	      stringSort = new Intl.Collator().compare,
+	      tbody = createElement("tbody", data.map(row => createElement("tr", row.map(cell => createElement("td", cell)).concat(Array.from({"length": max - row.length}, _ => createElement("td"))))));
+
+	let sorted = -1;
 
 	document.body.append(createElement("table", [
-		createElement("thead", Array.from({"length": max}, (_, n) => createElement("th", colName(n + 1)))),
-		createElement("tbody", data.map(row => createElement("tr", row.map(cell => createElement("td", cell)).concat(Array.from({"length": max - row.length}, _ => createElement("td"))))))
-	]));
+	 createElement("thead", Array.from({"length": max}, (_, n) => createElement("th", colName(n + 1), {"onclick": function (this: Element) {
+		const classes = this.classList;
+
+		if (n !== sorted) {
+			document.getElementsByClassName("s")[0]?.removeAttribute("class");
+
+			classes.add("s");
+			sorted = n;
+
+			tbody.append(...Array.from(tbody.children).sort((a, b) => stringSort(a.children[n]?.textContent ?? "", b.children[n]?.textContent ?? "")))
+		} else {
+			classes.toggle("r");
+
+			tbody.append(...Array.from(tbody.children).reverse())
+		}
+
+	}}))),
+	tbody]));
       },
       parseCSV = (contents: Uint8Array, delim = ",") => {
 	const tokenCell = 1,
