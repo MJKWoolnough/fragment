@@ -1,8 +1,8 @@
 import type {Phrase, Phraser, PhraserFn, Token, TokenFn, Tokeniser} from './lib/parser.js';
-import pageLoad from './lib/load.js';
-import parseMarkdown from './lib/markdown.js';
 import parseBBCode from './lib/bbcode.js';
 import {all as allBBCodeTags} from './lib/bbcode_tags.js';
+import pageLoad from './lib/load.js';
+import parseMarkdown from './lib/markdown.js';
 import parser from './lib/parser.js';
 
 type Children = string | Element | Children[];
