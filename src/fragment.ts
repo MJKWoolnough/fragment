@@ -95,7 +95,8 @@ const hash = window.location.hash.slice(1),
 				}
 			}}))),
 			tbody
-		])
+		]),
+		createElement("button", "Export Table", {"onclick": () => createElement("a", "", {"href": URL.createObjectURL(new Blob([Array.from(tbody.children).map(row => data[parseInt((row as HTMLElement).dataset["id"]!)].map(cell => `"${cell.replaceAll('"', '""')}"`).join(",")).join("\n")], {"type": "text/csv;charset=utf-8"})), "download": "table.csv"}).click()})
 	);
       },
       parseCSV = (contents: Uint8Array, delim = ",") => {
