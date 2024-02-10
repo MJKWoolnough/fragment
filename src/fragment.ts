@@ -33,8 +33,8 @@ const hash = window.location.hash.slice(1),
 			elem.append(child);
 		}
 	      },
-	      createElement = (name: string | Element, child?: Children, params?: Record<string, string | Function>) => {
-		const elem = name instanceof Element ? name : document.createElement(name);
+	      createElement = <E extends keyof HTMLElementTagNameMap>(name: E, child?: Children, params?: Record<string, string | Function>): HTMLElementTagNameMap[E] => {
+		const elem = document.createElement(name);
 
 		for (const [param, val] of Object.entries(params ?? {})) {
 			if (val instanceof Function) {
