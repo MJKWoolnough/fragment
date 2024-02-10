@@ -81,6 +81,8 @@ const hash = window.location.hash.slice(1),
 			createElement("thead", Array.from({"length": max}, (_, n) => createElement("th", colName(n + 1), {"onclick": function (this: Element) {
 				const classes = this.classList;
 
+				document.body.classList.toggle("b", true);
+
 				if (n !== sorted) {
 					document.getElementsByClassName("s")[0]?.removeAttribute("class");
 
