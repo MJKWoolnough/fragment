@@ -66,7 +66,8 @@ const hash = window.location.hash.slice(1),
 	      sorters = Array.from({"length": max}, (_, n) => data.every(row => row.length < n || !isNaN(parseFloat(row[n]))) ? numberSort : stringSort),
 	      tbody = createElement("tbody", data.map((row, n) => createElement("tr", row.map(cell => createElement("td", cell)).concat(Array.from({"length": max - row.length}, _ => createElement("td"))), {"data-id": n+""})));
 
-	let sorted = -1;
+	let sorted = -1,
+	    exportChar = ",";
 
 	document.body.append(
 		createElement("button", "Reset Table", {"onclick": () => {
@@ -98,7 +99,11 @@ const hash = window.location.hash.slice(1),
 			}}))),
 			tbody
 		]),
-		createElement("button", "Export Table", {"onclick": () => createElement("a", "", {"href": URL.createObjectURL(new Blob([Array.from(tbody.children).map(row => data[parseInt((row as HTMLElement).dataset["id"]!)].map(cell => `"${cell.replaceAll('"', '""')}"`).join(",")).join("\n")], {"type": "text/csv;charset=utf-8"})), "download": "table.csv"}).click()})
+		createElement("label", "CSV", {"for": "C"}),
+		createElement("input", "", {"id": "C", "type": "radio", "checked": "", "name":"E", "onclick": () => exportChar = ","}),
+		createElement("label", "TSV", {"for": "T"}),
+		createElement("input", "", {"id": "T", "type": "radio", "name":"E", "onclick": () => exportChar = "\t"}),
+		createElement("button", "Export Table", {"onclick": () => createElement("a", "", {"href": URL.createObjectURL(new Blob([Array.from(tbody.children).map(row => data[parseInt((row as HTMLElement).dataset["id"]!)].map(cell => `"${cell.replaceAll('"', '""')}"`).join(exportChar)).join("\n")], {"type": "text/csv;charset=utf-8"})), "download": "table.csv"}).click()})
 	);
       },
       parseCSV = (contents: Uint8Array, delim = ",") => {
