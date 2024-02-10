@@ -56,7 +56,7 @@ const hash = window.location.hash.slice(1),
 			return String.fromCharCode(64 + (n || 26));
 		}
 
-		const q = (n / 26) | 0,
+		const q = n / 26 | 0,
 		      r = n % 26;
 
 		return (r ? colName(q) : (q !== 1 ? colName(q - 1) : "")) + colName(r);
