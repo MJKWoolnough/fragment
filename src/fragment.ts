@@ -64,29 +64,39 @@ const hash = window.location.hash.slice(1),
 	      stringSort = new Intl.Collator().compare,
 	      numberSort = (a: string, b: string) => parseFloat(a || "-Infinity") - parseFloat(b || "-Infinity"),
 	      sorters = Array.from({"length": max}, (_, n) => data.every(row => row.length < n || !isNaN(parseFloat(row[n]))) ? numberSort : stringSort),
-	      tbody = createElement("tbody", data.map(row => createElement("tr", row.map(cell => createElement("td", cell)).concat(Array.from({"length": max - row.length}, _ => createElement("td"))))));
+	      tbody = createElement("tbody", data.map((row, n) => createElement("tr", row.map(cell => createElement("td", cell)).concat(Array.from({"length": max - row.length}, _ => createElement("td"))), {"data-id": n+""})));
 
 	let sorted = -1;
 
-	document.body.append(createElement("table", [
-		createElement("thead", Array.from({"length": max}, (_, n) => createElement("th", colName(n + 1), {"onclick": function (this: Element) {
-			const classes = this.classList;
+	document.body.append(
+		createElement("button", "Reset Table", {"onclick": () => {
+			sorted = -1;
 
-			if (n !== sorted) {
-				document.getElementsByClassName("s")[0]?.removeAttribute("class");
+			document.body.classList.remove("s");
+			document.getElementsByClassName("s")[0]?.removeAttribute("class");
 
-				classes.add("s");
-				sorted = n;
+			tbody.append(...Array.from(tbody.children).sort((a: Element, b: Element) => parseInt((a as HTMLElement).dataset["id"]!) - parseInt((b as HTMLElement).dataset["id"]!)));
+		}}),
+		createElement("table", [
+			createElement("thead", Array.from({"length": max}, (_, n) => createElement("th", colName(n + 1), {"onclick": function (this: Element) {
+				const classes = this.classList;
 
-				tbody.append(...Array.from(tbody.children).sort((a, b) => sorters[n](a.children[n]?.textContent ?? "", b.children[n]?.textContent ?? "")))
-			} else {
-				classes.toggle("r");
+				if (n !== sorted) {
+					document.getElementsByClassName("s")[0]?.removeAttribute("class");
 
-				tbody.append(...Array.from(tbody.children).reverse())
-			}
-		}}))),
-		tbody
-	]));
+					classes.add("s");
+					sorted = n;
+
+					tbody.append(...Array.from(tbody.children).sort((a, b) => sorters[n](a.children[n]?.textContent ?? "", b.children[n]?.textContent ?? "")))
+				} else {
+					classes.toggle("r");
+
+					tbody.append(...Array.from(tbody.children).reverse())
+				}
+			}}))),
+			tbody
+		])
+	);
       },
       parseCSV = (contents: Uint8Array, delim = ",") => {
 	const tokenCell = 1,
