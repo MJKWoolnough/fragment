@@ -215,5 +215,7 @@ pageLoad.then(() => hash ? fetch("data:application/octet-stream;base64," + hash)
 	case 't':
 		return parseCSV(contents, "\t");
 	}
+
+	return Promise.reject("Unknown content type");
 })
 .catch(err => document.body.textContent = "Error: " + err);
