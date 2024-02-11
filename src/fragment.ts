@@ -211,6 +211,10 @@ pageLoad.then(() => hash ? fetch("data:application/octet-stream;base64," + hash)
 	case 'B':
 	case 'C':
 	case 'T':
+		if (!window.isSecureContext) {
+			return Promise.reject("Cannot handle signed data in insecure mode");
+		}
+
 		const signatureLen = data.at(-2)! << 8 | data.at(-1)!,
 		      signedData = data.slice(0, -signatureLen - 2),
 		      signature = data.slice(-signatureLen - 2, -2);
