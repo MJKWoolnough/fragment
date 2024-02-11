@@ -59,11 +59,17 @@ declare tmpFile="$(mktemp)";
 	cat "$src";
 } > "$tmpFile";
 
-#if [ -n "$key" ]; then
-	# sign doc
-	# append signature to doc
-	# append signature length to doc
-#fi;
+if [ -n "$key" ]; then
+	declare signature="$(mktemp)";
+
+	cat "$tmpFile" | openssl dgst -sha256 -sign "$key" -out "$signature";
+
+	declare len="$(cat "$signature" | tee -A "$tmpFile" | wc -l)";
+	printf \\$(printf '%03o' $(( $len >> 8 ))) >> "$tmpFile";
+	printf \\$(printf '%03o' $(( $len & 255 ))) >> "$tmpFile";
+
+	rm -f "$signature";
+fi;
 
 echo "http://127.0.0.1:8080/#$(zopfli --deflate -m "$tmpFile" -c | base64 | tr -d '\n')";
 
