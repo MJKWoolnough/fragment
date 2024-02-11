@@ -49,7 +49,7 @@ while [ $# -gt 0 ]; do
 done;
 
 if [ -n "$key" ]; then
-	type="$(echo "$key" | tr a-z A-Z)"
+	type="$(echo "$type" | tr a-z A-Z)"
 fi;
 
 declare tmpFile="$(mktemp)";
