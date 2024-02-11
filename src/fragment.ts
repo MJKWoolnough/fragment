@@ -215,8 +215,13 @@ pageLoad.then(() => hash ? fetch("data:application/octet-stream;base64," + hash)
 		      signedData = data.slice(0, -signatureLen - 2),
 		      signature = data.slice(-signatureLen - 2, -2);
 
-		return HTTPRequest("keys.json", {"response": "json"})
-		.then(keys => Promise.any(keys.map((key: any) => window.crypto.subtle.importKey("jwk", key.key, key.algorithm, true, ["verify"])
+		type Keys = {
+			algorithm: AlgorithmIdentifier | RsaPssParams | EcdsaParams;
+			key: JsonWebKey;
+		}[];
+
+		return HTTPRequest<Keys>("keys.json", {"response": "json"})
+		.then(keys => Promise.any(keys.map(key => window.crypto.subtle.importKey("jwk", key.key, key.algorithm, true, ["verify"])
 			.then(ck => window.crypto.subtle.verify(key.algorithm, ck, signature, signedData))
 			.then(r => r || Promise.reject(""))
 		)))
