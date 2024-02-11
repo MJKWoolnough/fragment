@@ -2,6 +2,7 @@ import type {Phrase, Phraser, PhraserFn, Token, TokenFn, Tokeniser} from './lib/
 import parseBBCode from './lib/bbcode.js';
 import {all as allBBCodeTags} from './lib/bbcode_tags.js';
 import {HTTPRequest} from './lib/conn.js';
+import {a, body, br, head, html, title, script, style} from './lib/html.js';
 import pageLoad from './lib/load.js';
 import parseMarkdown from './lib/markdown.js';
 import parser from './lib/parser.js';
@@ -174,7 +175,19 @@ const hash = window.location.hash.slice(1),
 		table.push(r);
 	}
 
-	withMime(`<!DOCTYPE html>\n<html><head><title>Table</title><style type="text/css">table{background-color:#f8f8f8;color:#000;border-collapse: collapse}th{padding:0.5em 1.5em;background-color: #ddd}th,td{border:1px solid #000;cursor:pointer;user-select:none}th:hover{text-decoration: underline}th.s{background-repeat: no-repeat;background-position: right 0px bottom 0.5em;background-size: 1em 1em;background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 40 20'%3E%3Cpath d='M1,1 h38 l-19,18 z' fill='%23f00' stroke='%23000' stroke-linejoin='round' /%3E%3C/svg%3E%0A")}th.r{background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 40 20'%3E%3Cpath d='M1,19 h38 l-19,-18 z' fill='%23f00' stroke='%23000' stroke-linejoin='round' /%3E%3C/svg%3E%0A")}body:not(.b) br+button{visibility:hidden}</style><script type="module">(${makeTable.toString()})(${JSON.stringify(table)})</script></head><body><a href=${JSON.stringify(window.location + "")}>Link to this Table</a><br /></body></html>`, "text/html");
+	withMime("<!DOCTYPE html>\n" + html([
+			head([
+				title("Table"),
+				style({"type": "text/css"}, `table{background-color:#f8f8f8;color:#000;border-collapse: collapse}th{padding:0.5em 1.5em;background-color: #ddd}th,td{border:1px solid #000;cursor:pointer;user-select:none}th:hover{text-decoration: underline}th.s{background-repeat: no-repeat;background-position: right 0px bottom 0.5em;background-size: 1em 1em;background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 40 20'%3E%3Cpath d='M1,1 h38 l-19,18 z' fill='%23f00' stroke='%23000' stroke-linejoin='round' /%3E%3C/svg%3E%0A")}th.r{background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 40 20'%3E%3Cpath d='M1,19 h38 l-19,-18 z' fill='%23f00' stroke='%23000' stroke-linejoin='round' /%3E%3C/svg%3E%0A")}body:not(.b) br+button{visibility:hidden}`),
+				script({"type": "module"}, `(${makeTable.toString()})(${JSON.stringify(table)})`),
+			]),
+			body([
+				a({"href": window.location + ""}, "Link to this Table"),
+				br()
+			])
+		]).outerHTML,
+		"text/html"
+	);
       };
 
 pageLoad.then(() => hash ? fetch("data:application/octet-stream;base64," + hash) : Promise.reject("No Fragment"))
