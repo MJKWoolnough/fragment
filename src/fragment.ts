@@ -1,6 +1,7 @@
 import type {Phrase, Phraser, PhraserFn, Token, TokenFn, Tokeniser} from './lib/parser.js';
 import parseBBCode from './lib/bbcode.js';
 import {all as allBBCodeTags} from './lib/bbcode_tags.js';
+import {HTTPRequest} from './lib/conn.js';
 import pageLoad from './lib/load.js';
 import parseMarkdown from './lib/markdown.js';
 import parser from './lib/parser.js';
@@ -198,6 +199,36 @@ pageLoad.then(() => hash ? fetch("data:application/octet-stream;base64," + hash)
 	      };
 
 	return reader.read().then(appendText);
+})
+.then(data => {
+	const type = String.fromCharCode(data[0]);
+
+	switch (type) {
+	case 'P':
+	case 'H':
+	case 'S':
+	case 'M':
+	case 'B':
+	case 'C':
+	case 'T':
+		const signatureLen = data.at(-2)! << 8 | data.at(-1)!,
+		      signedData = data.slice(0, -signatureLen - 2),
+		      signature = data.slice(-signatureLen - 2, -2);
+
+		return HTTPRequest("keys.json", {"response": "json"})
+		.then(keys => Promise.any(keys.map((key: any) => window.crypto.subtle.importKey("jwk", key.key, key.algorithm, true, ["verify"])
+			.then(ck => window.crypto.subtle.verify(key.algorithm, ck, signature, signedData))
+			.then(r => r || Promise.reject(""))
+		)))
+		.catch(() => Promise.reject("Unable to verify signature"))
+		.then(() => {
+			signedData[0] = type.toLowerCase().charCodeAt(0);
+
+			return signedData;
+		});
+	}
+
+	return data;
 })
 .then(data => {
 	if (!data.length) {
