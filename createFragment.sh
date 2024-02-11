@@ -66,7 +66,38 @@ if [ -n "$key" ]; then
 
 	cat "$tmpFile" | openssl dgst -sha256 -sign "$key" -out "$signature";
 
-	declare len="$(cat "$signature" | tee -A "$tmpFile" | wc -l)";
+	declare rLen="$(od -An -t u1 -j 3 -N 1 "$signature" | tr -d ' ')";
+	declare rOne="$(od -An -t u1 -j 4 -N 1 "$signature" | tr -d ' ')";
+	declare sLen="$(od -An -t u1 -j "$(( $rLen + 5 ))" -N 1 "$signature" | tr -d ' ')";
+	declare sOne="$(od -An -t u1 -j "$(( $rLen + 6 ))" -N 1 "$signature" | tr -d ' ')";
+	declare rStart=4;
+	declare sStart=$(( $rLen + 6 ))
+
+	if [ "$rOne" = "0" ]; then
+		let "rStart++";
+		let "rLen--";
+	fi;
+
+	if [ "$sOne" = "0" ]; then
+		let "sStart++";
+		let "sLen--";
+	fi;
+
+	declare len="$({
+		while [ $rLen -lt $sLen ]; do
+			let "rLen++";
+			echo -en "\0";
+		done;
+
+		cat "$signature" | cut -b "$(( $rStart + 1 ))-$(( $rStart + $rLen ))" | sed -z '$ s/\n$//';
+
+		while [ $sLen -lt $rLen ]; do
+			let "sLen++";
+			echo -en "\0";
+		done;
+		cat "$signature" | cut -b "$(( $sStart + 1 ))-" | sed -z '$ s/\n$//';
+	} | tee -a "$tmpFile" | wc -c)";
+
 	printf \\$(printf '%03o' $(( $len >> 8 ))) >> "$tmpFile";
 	printf \\$(printf '%03o' $(( $len & 255 ))) >> "$tmpFile";
 
