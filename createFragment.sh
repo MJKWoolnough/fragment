@@ -1,5 +1,7 @@
 #!/bin/bash
 
+set -euo pipefail;
+
 declare src="-";
 declare type="p";
 declare key="";
