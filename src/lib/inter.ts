@@ -1,0 +1,1 @@
+../../../jslib/lib.ts/inter.ts
