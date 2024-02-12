@@ -2,6 +2,7 @@ import type {Phrase, Phraser, PhraserFn, Token, TokenFn, Tokeniser} from './lib/
 import parseBBCode from './lib/bbcode.js';
 import {all as allBBCodeTags} from './lib/bbcode_tags.js';
 import {HTTPRequest} from './lib/conn.js';
+import {amendNode} from './lib/dom.js';
 import {a, body, br, head, html, title, script, style} from './lib/html.js';
 import pageLoad from './lib/load.js';
 import parseMarkdown from './lib/markdown.js';
@@ -20,18 +21,58 @@ const hash = window.location.hash.slice(1),
       decodeText = (data: Uint8Array) => (new TextDecoder()).decode(data),
       processBBCode = (data: string) => parseBBCode(allBBCodeTags, data),
       processToHTML = (data: Uint8Array, fn: (contents: string) => DocumentFragment) => {
-	let dom: Element | DocumentFragment = fn(decodeText(data));
+	let dom: Element | DocumentFragment = fn(decodeText(data)),
+	    headElement: HTMLHeadElement | null = null,
+	    bodyElement: HTMLBodyElement | null = null,
+	    hasTitle = false;
 
 	if (dom.children.length === 1) {
 		switch (dom.children[0].nodeName) {
 		default:
 			dom = body(dom);
 		case "BODY":
-			dom = html(dom);
+			dom = html(bodyElement = dom as HTMLBodyElement);
+
+			break;
 		case "HTML":
+			for (const c of dom.children) {
+				if (c instanceof HTMLBodyElement) {
+					bodyElement = c;
+
+					break;
+				}
+			}
 		}
 	} else {
-		dom = html(body(dom));
+		dom = html(bodyElement = body(dom));
+	}
+
+	for (const hc of (dom as HTMLHtmlElement).children) {
+		if (hc instanceof HTMLHeadElement) {
+			headElement = hc;
+
+			for (const c of hc.children) {
+				if (c instanceof HTMLTitleElement) {
+					hasTitle = true;
+
+					break;
+				}
+			}
+
+			break;
+		}
+	}
+
+	if (!hasTitle) {
+		const titleText = bodyElement!.firstChild instanceof HTMLHeadingElement ? bodyElement!.firstChild.textContent  : "";
+
+		if (titleText) {
+			if (!headElement) {
+				dom.insertBefore(head(title(titleText)), bodyElement!);
+			} else {
+				amendNode(headElement, title(titleText));
+			}
+		}
 	}
 
 	withMime("<!DOCTYPE html>\n" + (dom as HTMLHtmlElement).outerHTML, "text/html");
