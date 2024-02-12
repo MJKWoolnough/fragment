@@ -327,10 +327,10 @@ pageLoad.then(() => hash ? fetch("data:application/octet-stream;base64," + hash)
 	switch (type) {
 	case 'p':
 		return withMime(contents, "text/plain");
-	case 'h':
-		return processToHTML(contents, text2DOM);
 	case 's':
 		return withMime(contents, "image/svg+xml");
+	case 'h':
+		return processToHTML(contents, text2DOM);
 	case 'm':
 		return processToHTML(contents, parseMarkdown);
 	case 'b':
