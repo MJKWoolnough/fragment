@@ -164,7 +164,7 @@ const hash = window.location.hash.slice(1),
 		createElement("button", "Export Table", {"onclick": () => createElement("a", "", {"href": URL.createObjectURL(new Blob([Array.from(tbody.children).map(row => data[parseInt((row as HTMLElement).dataset["id"]!)].map(cell => `"${cell.replaceAll('"', '""')}"`).join(exportChar)).join("\n")], {"type": "text/csv;charset=utf-8"})), "download": "table.csv"}).click()})
 	);
       },
-      parseCSV = (contents: Uint8Array, delim = ",") => {
+      parseTable = (contents: Uint8Array, delim: string) => {
 	const tokenCell = 1,
 	      tokenNL = 2,
 	      tokenRow = 3,
@@ -336,9 +336,9 @@ pageLoad.then(() => hash ? fetch("data:application/octet-stream;base64," + hash)
 	case 'b':
 		return processToHTML(contents, processBBCode);
 	case 'c':
-		return parseCSV(contents);
+		return parseTable(contents, ",");
 	case 't':
-		return parseCSV(contents, "\t");
+		return parseTable(contents, "\t");
 	}
 
 	return Promise.reject("Unknown content type");
