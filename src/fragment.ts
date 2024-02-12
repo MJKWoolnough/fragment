@@ -6,6 +6,7 @@ import {a, body, br, head, html, title, script, style} from './lib/html.js';
 import pageLoad from './lib/load.js';
 import parseMarkdown from './lib/markdown.js';
 import parser from './lib/parser.js';
+import {Arr, Bool, Obj, Or, Str, Tuple, Val} from './lib/typeguard.js';
 
 type Children = string | Element | Children[];
 
@@ -228,18 +229,26 @@ pageLoad.then(() => hash ? fetch("data:application/octet-stream;base64," + hash)
 			return Promise.reject("Cannot handle signed data in insecure mode");
 		}
 
-		const signatureLen = data.at(-2)! << 8 | data.at(-1)!,
+		const isStr = Str(),
+		      keysTG = Arr(Obj({
+			"hash": Or(Val("SHA-256"), Val("SHA-384"), Val("SHA-512")),
+			"key": Obj({
+				"alg": isStr,
+				"crv": isStr,
+				"ext": Bool(),
+				"key_ops": Tuple(Val("verify")),
+				"kty": isStr,
+				"x": isStr,
+				"y": isStr
+			})
+		      })),
+		      signatureLen = data.at(-2)! << 8 | data.at(-1)!,
 		      signedData = data.slice(0, -signatureLen - 2),
 		      signature = data.slice(-signatureLen - 2, -2);
 
-		type Keys = {
-			algorithm: AlgorithmIdentifier | RsaPssParams | EcdsaParams;
-			key: JsonWebKey;
-		}[];
-
-		return HTTPRequest<Keys>("keys.json", {"response": "json"})
-		.then(keys => Promise.any(keys.map(key => window.crypto.subtle.importKey("jwk", key.key, key.algorithm, true, ["verify"])
-			.then(ck => window.crypto.subtle.verify(key.algorithm, ck, signature, signedData))
+		return HTTPRequest("keys.json", {"response": "json", "checker": keysTG})
+		.then(keys => Promise.any(keys.map(key => window.crypto.subtle.importKey("jwk", key.key, {"name": "ECDSA", "namedCurve": key.key.crv}, true, ["verify"])
+			.then(ck => window.crypto.subtle.verify({"name": "ECDSA", "hash": key.hash}, ck, signature, signedData))
 			.then(r => r || Promise.reject(""))
 		)))
 		.catch(() => Promise.reject("Unable to verify signature"))
