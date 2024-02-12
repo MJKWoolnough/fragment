@@ -64,7 +64,7 @@ declare tmpFile="$(mktemp)";
 if [ -n "$key" ]; then
 	declare signature="$(mktemp)";
 
-	cat "$tmpFile" | openssl dgst -sha256 -sign "$key" -out "$signature";
+	openssl dgst -sha256 -sign "$key" -out "$signature" < "$tmpFile";
 
 	declare rLen="$(od -An -t u1 -j 3 -N 1 "$signature" | tr -d ' ')";
 	declare rOne="$(od -An -t u1 -j 4 -N 1 "$signature" | tr -d ' ')";
@@ -89,13 +89,13 @@ if [ -n "$key" ]; then
 			echo -en "\0";
 		done;
 
-		cat "$signature" | cut -b "$(( $rStart + 1 ))-$(( $rStart + $rLen ))" | sed -z '$ s/\n$//';
+		cut -b "$(( $rStart + 1 ))-$(( $rStart + $rLen ))" < "$signature" | sed -z '$ s/\n$//';
 
 		while [ $sLen -lt $rLen ]; do
 			let "sLen++";
 			echo -en "\0";
 		done;
-		cat "$signature" | cut -b "$(( $sStart + 1 ))-" | sed -z '$ s/\n$//';
+		cut -b "$(( $sStart + 1 ))-" < "$signature" | sed -z '$ s/\n$//';
 	} | tee -a "$tmpFile" | wc -c)";
 
 	printf \\$(printf '%03o' $(( $len >> 8 ))) >> "$tmpFile";
