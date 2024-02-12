@@ -6,6 +6,7 @@ import {amendNode} from './lib/dom.js';
 import {a, body, br, head, html, title, script, style} from './lib/html.js';
 import pageLoad from './lib/load.js';
 import parseMarkdown from './lib/markdown.js';
+import {text2DOM} from './lib/misc.js';
 import parser from './lib/parser.js';
 import {Arr, Bool, Obj, Or, Str, Tuple, Val} from './lib/typeguard.js';
 
@@ -327,7 +328,7 @@ pageLoad.then(() => hash ? fetch("data:application/octet-stream;base64," + hash)
 	case 'p':
 		return withMime(contents, "text/plain");
 	case 'h':
-		return withMime(contents, "text/html");
+		return processToHTML(contents, text2DOM);
 	case 's':
 		return withMime(contents, "image/svg+xml");
 	case 'm':
