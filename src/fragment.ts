@@ -20,9 +20,21 @@ const hash = window.location.hash.slice(1),
       decodeText = (data: Uint8Array) => (new TextDecoder()).decode(data),
       processBBCode = (data: string) => parseBBCode(allBBCodeTags, data),
       processToHTML = (data: Uint8Array, fn: (contents: string) => DocumentFragment) => {
-	const dom = fn(decodeText(data));
+	let dom: Element | DocumentFragment = fn(decodeText(data));
 
-	withMime(Array.from(dom.children).reduce((t, e) => t + e.outerHTML, ""), "text/html");
+	if (dom.children.length === 1) {
+		switch (dom.children[0].nodeName) {
+		default:
+			dom = body(dom);
+		case "BODY":
+			dom = html(dom);
+		case "HTML":
+		}
+	} else {
+		dom = html(body(dom));
+	}
+
+	withMime("<!DOCTYPE html>\n" + (dom as HTMLHtmlElement).outerHTML, "text/html");
       },
       makeTable = (data: string[][]) => {
 	const appendChildren = (elem: Element, child: Children) => {
