@@ -18,6 +18,7 @@ const hash = window.location.hash.slice(1),
 
 	window.location.href = url;
       },
+      htmlDoctype = "<!DOCTYPE html>\n",
       decodeText = (data: Uint8Array) => (new TextDecoder()).decode(data),
       processBBCode = (data: string) => parseBBCode(allBBCodeTags, data),
       processToHTML = (data: Uint8Array, fn: (contents: string) => DocumentFragment) => {
@@ -75,7 +76,7 @@ const hash = window.location.hash.slice(1),
 		}
 	}
 
-	withMime("<!DOCTYPE html>\n" + (dom as HTMLHtmlElement).outerHTML, "text/html");
+	withMime(htmlDoctype + (dom as HTMLHtmlElement).outerHTML, "text/html");
       },
       makeTable = (data: string[][]) => {
 	const appendChildren = (elem: Element, child: Children) => {
@@ -229,7 +230,7 @@ const hash = window.location.hash.slice(1),
 		table.push(r);
 	}
 
-	withMime("<!DOCTYPE html>\n" + html([
+	withMime(htmlDoctype + html([
 			head([
 				title("Table"),
 				style({"type": "text/css"}, `table{background-color:#f8f8f8;color:#000;border-collapse: collapse}th{padding:0.5em 1.5em;background-color: #ddd}th,td{border:1px solid #000;cursor:pointer;user-select:none}th:hover{text-decoration: underline}th.s{background-repeat: no-repeat;background-position: right 0px bottom 0.5em;background-size: 1em 1em;background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 40 20'%3E%3Cpath d='M1,1 h38 l-19,18 z' fill='%23f00' stroke='%23000' stroke-linejoin='round' /%3E%3C/svg%3E%0A")}th.r{background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 40 20'%3E%3Cpath d='M1,19 h38 l-19,-18 z' fill='%23f00' stroke='%23000' stroke-linejoin='round' /%3E%3C/svg%3E%0A")}body:not(.b) br+button{visibility:hidden}`),
