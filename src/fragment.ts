@@ -23,61 +23,21 @@ const hash = window.location.hash.slice(1),
       decodeText = (data: Uint8Array) => (new TextDecoder()).decode(data),
       processBBCode = (data: string) => parseBBCode(allBBCodeTags, data),
       processToHTML = (data: Uint8Array, fn: (contents: string) => DocumentFragment) => {
-	let dom: Element | DocumentFragment = fn(decodeText(data)),
-	    headElement: HTMLHeadElement | null = null,
-	    bodyElement: HTMLBodyElement | null = null,
-	    hasTitle = false;
+	const dom = fn(decodeText(data)),
+	      firstChild = dom.children[0],
+	      htmlElement = dom.children.length === 1 ? firstChild instanceof HTMLHtmlElement ? firstChild : firstChild instanceof HTMLBodyElement ? html(firstChild) : html(body(dom)) : html(body(dom)),
+	      bodyElement = Array.from(htmlElement.children).find(e => e instanceof HTMLBodyElement) as HTMLBodyElement ?? htmlElement.appendChild(body()),
+	      headElement = Array.from(htmlElement.children).find(e => e instanceof HTMLHeadElement) as HTMLHeadElement ?? htmlElement.insertBefore(head(), bodyElement);
 
-	if (dom.children.length === 1) {
-		switch (dom.children[0].nodeName) {
-		default:
-			dom = body(dom);
-		case "BODY":
-			dom = html(bodyElement = dom as HTMLBodyElement);
-
-			break;
-		case "HTML":
-			for (const c of dom.children) {
-				if (c instanceof HTMLBodyElement) {
-					bodyElement = c;
-
-					break;
-				}
-			}
-		}
-	} else {
-		dom = html(bodyElement = body(dom));
-	}
-
-	for (const hc of (dom as HTMLHtmlElement).children) {
-		if (hc instanceof HTMLHeadElement) {
-			headElement = hc;
-
-			for (const c of hc.children) {
-				if (c instanceof HTMLTitleElement) {
-					hasTitle = true;
-
-					break;
-				}
-			}
-
-			break;
-		}
-	}
-
-	if (!hasTitle) {
-		const titleText = bodyElement!.firstChild instanceof HTMLHeadingElement ? bodyElement!.firstChild.textContent  : "";
+	if (!Array.from(headElement.children).some(e => e instanceof HTMLTitleElement)) {
+		const titleText = bodyElement.firstChild instanceof HTMLHeadingElement ? bodyElement.firstChild.textContent : "";
 
 		if (titleText) {
-			if (!headElement) {
-				dom.insertBefore(head(title(titleText)), bodyElement!);
-			} else {
-				amendNode(headElement, title(titleText));
-			}
+			amendNode(headElement, title(titleText));
 		}
 	}
 
-	withMime(htmlDoctype + (dom as HTMLHtmlElement).outerHTML, "text/html");
+	withMime(htmlDoctype + htmlElement.outerHTML, "text/html");
       },
       makeTable = (data: string[][]) => {
 	const appendChildren = (elem: Element, child: Children) => {
