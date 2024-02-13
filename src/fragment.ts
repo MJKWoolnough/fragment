@@ -10,8 +10,6 @@ import {text2DOM} from './lib/misc.js';
 import parser from './lib/parser.js';
 import {Arr, Bool, Obj, Or, Str, Tuple, Val} from './lib/typeguard.js';
 
-type Children = string | Element | Children[];
-
 const hash = window.location.hash.slice(1),
       withMime = (data: BlobPart, mime: string) => {
 	const blob = new Blob([data], {"type": mime}),
@@ -40,6 +38,10 @@ const hash = window.location.hash.slice(1),
 	withMime(htmlDoctype + htmlElement.outerHTML, "text/html");
       },
       makeTable = (data: string[][]) => {
+	type Children = string | Element | Children[];
+
+	type DOMBind<T extends Element> = (child?: Children, params?: Record<string, string | Function>) => T;
+
 	const appendChildren = (elem: Element, child: Children) => {
 		if (typeof child === "string") {
 			elem.textContent = child;
@@ -51,9 +53,7 @@ const hash = window.location.hash.slice(1),
 			elem.append(child);
 		}
 	      },
-	      createElement = <E extends keyof HTMLElementTagNameMap>(name: E, child?: Children, params?: Record<string, string | Function>): HTMLElementTagNameMap[E] => {
-		const elem = document.createElement(name);
-
+	      amendNode = <E extends Element>(elem: E, child?: Children, params?: Record<string, string | Function>): E => {
 		for (const [param, val] of Object.entries(params ?? {})) {
 			if (val instanceof Function) {
 				elem.addEventListener(param.slice(2) as keyof ElementEventMap, val as EventListener);
@@ -68,6 +68,7 @@ const hash = window.location.hash.slice(1),
 
 		return elem;
 	      },
+	      [a, button, input, label, table, tbody, td, th, thead, tr] = "a button input label table tbody td th thead tr".split(" ").map(e => (child?: Children, params?: Record<string, string | Function>) => amendNode(document.createElement(e), child, params)) as [DOMBind<HTMLElementTagNameMap["a"]>, DOMBind<HTMLElementTagNameMap["button"]>, DOMBind<HTMLElementTagNameMap["input"]>, DOMBind<HTMLElementTagNameMap["label"]>, DOMBind<HTMLElementTagNameMap["table"]>, DOMBind<HTMLElementTagNameMap["tbody"]>, DOMBind<HTMLElementTagNameMap["td"]>, DOMBind<HTMLElementTagNameMap["th"]>, DOMBind<HTMLElementTagNameMap["thead"]>, DOMBind<HTMLElementTagNameMap["tr"]>],
 	      max = data.reduce((n, r) => Math.max(n, r.length), 0),
 	      colName = (n: number): string => {
 		if (n < 26) {
@@ -82,22 +83,22 @@ const hash = window.location.hash.slice(1),
 	      stringSort = new Intl.Collator().compare,
 	      numberSort = (a: string, b: string) => parseFloat(a || "-Infinity") - parseFloat(b || "-Infinity"),
 	      sorters = Array.from({"length": max}, (_, n) => data.every(row => row.length < n || !isNaN(parseFloat(row[n]))) ? numberSort : stringSort),
-	      tbody = createElement("tbody", data.map((row, n) => createElement("tr", row.map(cell => createElement("td", cell)).concat(Array.from({"length": max - row.length}, _ => createElement("td"))), {"data-id": n+""})));
+	      tbodyElement = tbody(data.map((row, n) => tr(row.map(cell => td(cell)).concat(Array.from({"length": max - row.length}, _ => td())), {"data-id": n+""})));
 
 	let sorted = -1,
 	    exportChar = ",";
 
-	document.body.append(
-		createElement("button", "Reset Table", {"onclick": () => {
+	amendNode(document.body, [
+		button("Reset Table", {"onclick": () => {
 			sorted = -1;
 
 			document.body.classList.remove("b");
 			document.getElementsByClassName("s")[0]?.removeAttribute("class");
 
-			tbody.append(...Array.from(tbody.children).sort((a: Element, b: Element) => parseInt((a as HTMLElement).dataset["id"]!) - parseInt((b as HTMLElement).dataset["id"]!)));
+			amendNode(tbodyElement, Array.from(tbodyElement.children).sort((a: Element, b: Element) => parseInt((a as HTMLElement).dataset["id"]!) - parseInt((b as HTMLElement).dataset["id"]!)));
 		}}),
-		createElement("table", [
-			createElement("thead", Array.from({"length": max}, (_, n) => createElement("th", colName(n + 1), {"onclick": function (this: Element) {
+		table([
+			thead(Array.from({"length": max}, (_, n) => th(colName(n + 1), {"onclick": function (this: Element) {
 				const classes = this.classList;
 
 				document.body.classList.toggle("b", true);
@@ -108,21 +109,21 @@ const hash = window.location.hash.slice(1),
 					classes.add("s");
 					sorted = n;
 
-					tbody.append(...Array.from(tbody.children).sort((a, b) => sorters[n](a.children[n]?.textContent ?? "", b.children[n]?.textContent ?? "")))
+					amendNode(tbodyElement, Array.from(tbodyElement.children).sort((a, b) => sorters[n](a.children[n]?.textContent ?? "", b.children[n]?.textContent ?? "")))
 				} else {
 					classes.toggle("r");
 
-					tbody.append(...Array.from(tbody.children).reverse())
+					amendNode(tbodyElement, Array.from(tbodyElement.children).reverse());
 				}
 			}}))),
-			tbody
+			tbodyElement
 		]),
-		createElement("label", "CSV", {"for": "C"}),
-		createElement("input", "", {"id": "C", "type": "radio", "checked": "", "name":"E", "onclick": () => exportChar = ","}),
-		createElement("label", "TSV", {"for": "T"}),
-		createElement("input", "", {"id": "T", "type": "radio", "name":"E", "onclick": () => exportChar = "\t"}),
-		createElement("button", "Export Table", {"onclick": () => createElement("a", "", {"href": URL.createObjectURL(new Blob([Array.from(tbody.children).map(row => data[parseInt((row as HTMLElement).dataset["id"]!)].map(cell => `"${cell.replaceAll('"', '""')}"`).join(exportChar)).join("\n")], {"type": "text/csv;charset=utf-8"})), "download": "table.csv"}).click()})
-	);
+		label("CSV", {"for": "C"}),
+		input("", {"id": "C", "type": "radio", "checked": "", "name":"E", "onclick": () => exportChar = ","}),
+		label("TSV", {"for": "T"}),
+		input("", {"id": "T", "type": "radio", "name":"E", "onclick": () => exportChar = "\t"}),
+		button("Export Table", {"onclick": () => a("", {"href": URL.createObjectURL(new Blob([Array.from(tbodyElement.children).map(row => data[parseInt((row as HTMLElement).dataset["id"]!)].map(cell => `"${cell.replaceAll('"', '""')}"`).join(exportChar)).join("\n")], {"type": "text/csv;charset=utf-8"})), "download": "table.csv"}).click()})
+	]);
       },
       parseTable = (contents: Uint8Array, delim: string) => {
 	const tokenCell = 1,
