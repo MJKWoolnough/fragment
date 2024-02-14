@@ -187,15 +187,7 @@ const hash = window.location.hash.slice(1),
 			break;
 		}
 
-		const r: string[] = [];
-
-		for (const cell of row.data) {
-			if (cell.type !== tokenNL) {
-				r.push(cell.data[0] === "\"" ? cell.data.slice(1, -1).replace("\"\"", "\"")  : cell.data);
-			}
-		}
-
-		table.push(r);
+		table.push(row.data.filter(cell => cell.type !== tokenNL).map(cell => cell.data[0] === "\"" ? cell.data.slice(1, -1).replace("\"\"", "\"")  : cell.data));
 	}
 
 	withMime(htmlDoctype + html([
