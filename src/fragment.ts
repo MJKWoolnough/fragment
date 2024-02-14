@@ -35,6 +35,10 @@ const hash = window.location.hash.slice(1),
 		}
 	}
 
+	if (!Array.from(headElement.children).some(e => e instanceof HTMLLinkElement && e.getAttribute("rel") === "shortcut icon")) {
+		amendNode(headElement, document.getElementsByTagName("link")[0]!.cloneNode());
+	}
+
 	withMime(htmlDoctype + htmlElement.outerHTML, "text/html");
       },
       makeTable = (data: string[][]) => {
