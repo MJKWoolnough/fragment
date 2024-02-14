@@ -3,7 +3,7 @@ import parseBBCode from './lib/bbcode.js';
 import {all as allBBCodeTags} from './lib/bbcode_tags.js';
 import {HTTPRequest} from './lib/conn.js';
 import {amendNode} from './lib/dom.js';
-import {a, body, br, head, html, title, script, style} from './lib/html.js';
+import {a, body, br, head, html, script, style, title} from './lib/html.js';
 import pageLoad from './lib/load.js';
 import parseMarkdown from './lib/markdown.js';
 import {text2DOM} from './lib/misc.js';
