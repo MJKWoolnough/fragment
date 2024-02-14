@@ -131,6 +131,7 @@ const hash = window.location.hash.slice(1),
 		button("Export Table", {"onclick": () => a("", {"href": URL.createObjectURL(new Blob([Array.from(tbodyElement.children).map(row => data[parseInt((row as HTMLElement).dataset["id"]!)].map(cell => `"${cell.replaceAll('"', '""')}"`).join(exportChar)).join("\n")], {"type": "text/csv;charset=utf-8"})), "download": "table.csv"}).click()})
 	]);
       },
+      sm = "\"",
       parseTable = (contents: Uint8Array, delim: string) => {
 	const tokenCell = 1,
 	      tokenNL = 2,
@@ -149,15 +150,15 @@ const hash = window.location.hash.slice(1),
 		if (!tk.peek()) {
 			return tk.done();
 		}
-		if (tk.accept("\"")) {
+		if (tk.accept(sm)) {
 			while (true) {
-				switch (tk.exceptRun("\"")) {
+				switch (tk.exceptRun(sm)) {
 				default:
 					return tk.return(tokenCell);
-				case "\"":
+				case sm:
 					tk.next();
 
-					if (!tk.accept("\"")) {
+					if (!tk.accept(sm)) {
 						return tk.return(tokenCell, skipChar);
 					}
 				}
@@ -187,7 +188,7 @@ const hash = window.location.hash.slice(1),
 			break;
 		}
 
-		table.push(row.data.filter(cell => cell.type !== tokenNL).map(cell => cell.data[0] === "\"" ? cell.data.slice(1, -1).replace("\"\"", "\"")  : cell.data));
+		table.push(row.data.filter(cell => cell.type !== tokenNL).map(cell => cell.data[0] === sm ? cell.data.slice(1, -1).replace(sm+sm, sm)  : cell.data));
 	}
 
 	withMime(htmlDoctype + html([
