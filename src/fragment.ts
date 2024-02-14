@@ -26,9 +26,10 @@ const hash = window.location.hash.slice(1),
 	      firstChild = dom.children[0],
 	      htmlElement = dom.children.length === 1 ? firstChild instanceof HTMLHtmlElement ? firstChild : firstChild instanceof HTMLBodyElement ? html(firstChild) : html(body(dom)) : html(body(dom)),
 	      bodyElement = Array.from(htmlElement.children).find(e => e instanceof HTMLBodyElement) as HTMLBodyElement ?? htmlElement.appendChild(body()),
-	      headElement = Array.from(htmlElement.children).find(e => e instanceof HTMLHeadElement) as HTMLHeadElement ?? htmlElement.insertBefore(head(), bodyElement);
+	      headElement = Array.from(htmlElement.children).find(e => e instanceof HTMLHeadElement) as HTMLHeadElement ?? htmlElement.insertBefore(head(), bodyElement),
+	      headChildren = Array.from(headElement.children);
 
-	if (!Array.from(headElement.children).some(e => e instanceof HTMLTitleElement)) {
+	if (!headChildren.some(e => e instanceof HTMLTitleElement)) {
 		const titleText = bodyElement.firstChild instanceof HTMLHeadingElement ? bodyElement.firstChild.textContent : "";
 
 		if (titleText) {
@@ -36,7 +37,7 @@ const hash = window.location.hash.slice(1),
 		}
 	}
 
-	if (!Array.from(headElement.children).some(e => e instanceof HTMLLinkElement && e.getAttribute("rel") === "shortcut icon")) {
+	if (!headChildren.some(e => e instanceof HTMLLinkElement && e.getAttribute("rel") === "shortcut icon")) {
 		amendNode(headElement, favicon());
 	}
 
