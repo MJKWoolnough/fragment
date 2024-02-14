@@ -230,9 +230,7 @@ pageLoad.then(() => hash ? fetch("data:application/octet-stream;base64," + hash)
 	return reader.read().then(appendText);
 })
 .then(data => {
-	const type = String.fromCharCode(data[0]);
-
-	switch (type) {
+	switch (String.fromCharCode(data[0])) {
 	case 'P':
 	case 'H':
 	case 'S':
@@ -267,11 +265,7 @@ pageLoad.then(() => hash ? fetch("data:application/octet-stream;base64," + hash)
 			.then(r => r || Promise.reject(""))
 		)))
 		.catch(() => Promise.reject("Unable to verify signature"))
-		.then(() => {
-			signedData[0] = type.toLowerCase().charCodeAt(0);
-
-			return signedData;
-		});
+		.then(() => signedData);
 	}
 
 	return data;
@@ -281,10 +275,9 @@ pageLoad.then(() => hash ? fetch("data:application/octet-stream;base64," + hash)
 		return Promise.reject("No Data");
 	}
 
-	const type = String.fromCharCode(data[0]),
-	      contents = data.slice(1);
+	const contents = data.slice(1);
 
-	switch (type) {
+	switch (String.fromCharCode(data[0]).toLowerCase()) {
 	case 'p':
 		return withMime(contents, "text/plain");
 	case 's':
