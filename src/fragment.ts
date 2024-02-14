@@ -232,8 +232,8 @@ pageLoad.then(() => hash ? fetch("data:application/octet-stream;base64," + hash)
 .then(data => {
 	switch (String.fromCharCode(data[0])) {
 	case 'P':
-	case 'H':
 	case 'S':
+	case 'H':
 	case 'M':
 	case 'B':
 	case 'C':
