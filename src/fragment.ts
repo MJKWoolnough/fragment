@@ -180,7 +180,7 @@ const hash = window.location.hash.slice(1),
 		}
 
 		return p.return(tokenRow, skipNL);
-	      }
+	      };
 
 	for (const row of parser(decodeText(contents).trimEnd(), parseCell, parseRow)) {
 		if (row.type < 0){
