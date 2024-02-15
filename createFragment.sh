@@ -5,14 +5,16 @@ set -euo pipefail;
 declare src="-";
 declare type="p";
 declare key="";
+declare hash="sha256";
 
 printHelp() {
 	cat <<HEREDOC
-Usage: $0 [-m MODE] [-s SOURCE] [-k KEY]
+Usage: $0 [-m MODE] [-s SOURCE] [-k KEY [-h HASH]]
 
 -t, --type   File type. Currently supported: m (Markdown), b (BBCode), p (Plain Text), h (HTML), s (SVG), c (CSV), t (TSV).
 -s, --source Source file to create fragment from. (default: stdin)
 -k, --key    Private key with which to sign the fragment. (default: NONE)
+-h, --hash   Hash size to use when signing digest: sha256, sha384, sha512. (default: sha256)
 HEREDOC
 }
 
@@ -39,6 +41,20 @@ while [ $# -gt 0 ]; do
 		shift;;
 	"-k"|"--key")
 		key="$2";
+
+		shift;;
+	"-h"|"--hash")
+		case "$2" in
+		"sha256"|"sha384"|"sha512")
+			hash="$2";;
+		*)
+			{
+				echo "Invalid hash";
+				printHelp;
+			} >&2;
+
+			exit 1;;
+		esac;
 
 		shift;;
 	*)
@@ -75,7 +91,7 @@ assert() {
 }
 
 if [ -n "$key" ]; then
-	openssl dgst -sha256 -sign "$key" -out - < "$tmpFile" | od -An -t x1 | tr -d ' \n' | {
+	openssl dgst -"$hash" -sign "$key" -out - < "$tmpFile" | od -An -t x1 | tr -d ' \n' | {
 		read -n 2 sanity;
 
 		assert "$sanity" "30" "Invalid header byte";
