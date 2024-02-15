@@ -89,6 +89,13 @@ done;
 
 if [ -n "$key" ]; then
 	type="$(echo "$type" | tr a-z A-Z)"
+elif ${set[3]}; then
+	{
+		echo "Must set --key to use --hash flag.";
+		printHelp;
+
+		exit 1;
+	} >&2;
 fi;
 
 declare tmpFile="$(mktemp)";
