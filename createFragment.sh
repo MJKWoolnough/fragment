@@ -158,4 +158,4 @@ if [ -n "$key" ]; then
 	} >> "$tmpFile";
 fi;
 
-echo "http://127.0.0.1:8080/#$(zopfli --deflate -m "$tmpFile" -c | base64 | tr -d '\n')";
+echo "Fragment URL: http://127.0.0.1:8080/#$(zopfli --deflate -m "$tmpFile" -c | base64 | tr -d '\n')";
