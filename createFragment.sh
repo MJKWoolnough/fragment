@@ -70,7 +70,7 @@ while [ $# -gt 0 ]; do
 			hash="$2";;
 		*)
 			{
-				echo "Invalid hash";
+				echo "Invalid hash.";
 				printHelp;
 			} >&2;
 
@@ -122,12 +122,12 @@ if [ -n "$key" ]; then
 	openssl dgst -"$hash" -sign "$key" -out - < "$tmpFile" | od -An -t x1 | tr -d ' \n' | {
 		read -n 2 sanity;
 
-		assert "$sanity" "30" "Invalid header byte";
+		assert "$sanity" "30" "Invalid header byte.";
 
 		read -n 2 fullLen;
 		read -n 2 sanity;
 
-		assert "$sanity" "02" "Invalid r header byte";
+		assert "$sanity" "02" "Invalid r header byte.";
 
 		read -n 2 rLen;
 
@@ -135,11 +135,11 @@ if [ -n "$key" ]; then
 
 		read -n 2 sanity;
 
-		assert "$sanity" "02" "Invalid s header byte";
+		assert "$sanity" "02" "Invalid s header byte.";
 
 		read -n 2 sLen;
 
-		assert $(( $rLen + $sLen + 4 )) $fullLen "Invalid length detected";
+		assert $(( $rLen + $sLen + 4 )) $fullLen "Invalid length detected.";
 
 		read -n $(( 2 * 16#$sLen )) s;
 
