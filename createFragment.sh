@@ -44,7 +44,7 @@ while [ $# -gt 0 ]; do
 	*)
 		printHelp;
 
-		exit 1;
+		exit 1;;
 	esac;
 
 	shift;
