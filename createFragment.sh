@@ -67,22 +67,23 @@ trap cleanup EXIT;
 	cat "$src";
 } > "$tmpFile";
 
+assert() {
+	if [ "$1" != "$2" ]; then
+		echo "$3" >&2;
+		exit 1;
+	fi;
+}
+
 if [ -n "$key" ]; then
 	openssl dgst -sha256 -sign "$key" -out - < "$tmpFile" | od -An -t x1 | tr -d ' \n' | {
 		read -n 2 sanity;
 
-		if [ "$sanity" != "30" ]; then
-			echo "Invalid header byte" >&2;
-			exit 1;
-		fi;
+		assert "$sanity" "30" "Invalid header byte";
 
 		read -n 2 fullLen;
 		read -n 2 sanity;
 
-		if [ "$sanity" != "02" ]; then
-			echo "Invalid r header byte" >&2;
-			exit 1;
-		fi;
+		assert "$sanity" "02" "Invalid r header byte";
 
 		read -n 2 rLen;
 
@@ -90,17 +91,11 @@ if [ -n "$key" ]; then
 
 		read -n 2 sanity;
 
-		if [ "$sanity" != "02" ]; then
-			echo "Invalid s header byte" >&2;
-			exit 1;
-		fi;
+		assert "$sanity" "02" "Invalid s header byte";
 
 		read -n 2 sLen;
 
-		if [ $(( $fullLen - $rLen - $sLen - 4 )) -ne 0 ]; then
-			echo "Invalid length detected" >&2;
-			exit 1;
-		fi;
+		assert $(( $fullLen - $rLen - $sLen - 4 )) 0 "Invalid length detected";
 
 		read -n $(( 2 * 16#$sLen )) s;
 
