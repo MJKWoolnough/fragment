@@ -111,7 +111,7 @@ if [ -n "$key" ]; then
 
 		read -n 2 sLen;
 
-		assert $(( $fullLen - $rLen - $sLen - 4 )) 0 "Invalid length detected";
+		assert $(( $rLen + $sLen + 4 )) $fullLen "Invalid length detected";
 
 		read -n $(( 2 * 16#$sLen )) s;
 
