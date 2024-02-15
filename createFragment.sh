@@ -56,6 +56,12 @@ fi;
 
 declare tmpFile="$(mktemp)";
 
+cleanup() {
+	rm -f "$tmpFile";
+}
+
+trap cleanup EXIT;
+
 {
 	echo -n "$type";
 	cat "$src";
@@ -114,5 +120,3 @@ if [ -n "$key" ]; then
 fi;
 
 echo "http://127.0.0.1:8080/#$(zopfli --deflate -m "$tmpFile" -c | base64 | tr -d '\n')";
-
-rm -f "$tmpFile";
