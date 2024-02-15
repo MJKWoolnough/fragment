@@ -7,6 +7,8 @@ declare type="p";
 declare key="";
 declare hash="sha256";
 
+declare set=( false false false false );
+
 printHelp() {
 	cat <<HEREDOC
 Usage: $0 [-m MODE] [-s SOURCE] [-k KEY [-h HASH]]
@@ -18,9 +20,22 @@ Usage: $0 [-m MODE] [-s SOURCE] [-k KEY [-h HASH]]
 HEREDOC
 }
 
+optionSet() {
+	if ${set[$1]}; then
+		echo "Cannot set same parameter twice."
+		printHelp;
+
+		exit 1;
+	fi >&2;
+
+	set[$1]=true;
+}
+
 while [ $# -gt 0 ]; do
 	case "$1" in
 	"-t"|"--type")
+		optionSet 0;
+
 		type="$(echo "$2" | tr A-Z a-z)";
 
 		case "$type" in
@@ -36,14 +51,20 @@ while [ $# -gt 0 ]; do
 
 		shift;;
 	"-s"|"--source")
+		optionSet 1;
+
 		src="$2";
 
 		shift;;
 	"-k"|"--key")
+		optionSet 2;
+
 		key="$2";
 
 		shift;;
 	"-h"|"--hash")
+		optionSet 3;
+
 		case "$2" in
 		"sha256"|"sha384"|"sha512")
 			hash="$2";;
