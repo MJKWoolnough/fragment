@@ -62,46 +62,55 @@ declare tmpFile="$(mktemp)";
 } > "$tmpFile";
 
 if [ -n "$key" ]; then
-	declare signature="$(mktemp)";
+	openssl dgst -sha256 -sign "$key" -out - < "$tmpFile" | od -An -t x1 | tr -d ' \n' | {
+		read -n 2 sanity;
 
-	openssl dgst -sha256 -sign "$key" -out "$signature" < "$tmpFile";
+		if [ "$sanity" != "30" ]; then
+			echo "Invalid header byte" >&2;
+			exit 1;
+		fi;
 
-	declare rLen="$(od -An -t u1 -j 3 -N 1 "$signature" | tr -d ' ')";
-	declare rOne="$(od -An -t u1 -j 4 -N 1 "$signature" | tr -d ' ')";
-	declare sLen="$(od -An -t u1 -j "$(( $rLen + 5 ))" -N 1 "$signature" | tr -d ' ')";
-	declare sOne="$(od -An -t u1 -j "$(( $rLen + 6 ))" -N 1 "$signature" | tr -d ' ')";
-	declare rStart=4;
-	declare sStart=$(( $rLen + 6 ))
+		read -n 2 fullLen;
+		read -n 2 sanity;
 
-	if [ "$rOne" = "0" ]; then
-		let "rStart++";
-		let "rLen--";
-	fi;
+		if [ "$sanity" != "02" ]; then
+			echo "Invalid r header byte" >&2;
+			exit 1;
+		fi;
 
-	if [ "$sOne" = "0" ]; then
-		let "sStart++";
-		let "sLen--";
-	fi;
+		read -n 2 rLen;
 
-	declare len="$({
-		while [ $rLen -lt $sLen ]; do
-			let "rLen++";
-			echo -en "\0";
+		read -n $(( 2 * 16#$rLen )) r;
+
+		read -n 2 sanity;
+
+		if [ "$sanity" != "02" ]; then
+			echo "Invalid s header byte" >&2;
+			exit 1;
+		fi;
+
+		read -n 2 sLen;
+
+		if [ $(( $fullLen - $rLen - $sLen - 4 )) -ne 0 ]; then
+			echo "Invalid length detected" >&2;
+			exit 1;
+		fi;
+
+		read -n $(( 2 * 16#$sLen )) s;
+
+		r="$(echo -n "$r" | sed -e 's/^00//')";
+		s="$(echo -n "$s" | sed -e 's/^00//')";
+
+		r="$(printf %0${#s}s "$r")";
+		s="$(printf %0${#r}s "$s")";
+
+		echo -n "$r$s" | tr ' ' '0' | while read -n 2 byte; do
+			printf \\x"$byte";
 		done;
 
-		cut -b "$(( $rStart + 1 ))-$(( $rStart + $rLen ))" < "$signature" | sed -z '$ s/\n$//';
-
-		while [ $sLen -lt $rLen ]; do
-			let "sLen++";
-			echo -en "\0";
-		done;
-		cut -b "$(( $sStart + 1 ))-" < "$signature" | sed -z '$ s/\n$//';
-	} | tee -a "$tmpFile" | wc -c)";
-
-	printf \\$(printf '%03o' $(( $len >> 8 ))) >> "$tmpFile";
-	printf \\$(printf '%03o' $(( $len & 255 ))) >> "$tmpFile";
-
-	rm -f "$signature";
+		printf \\$(printf '%03o' $(( ${#r} >> 8 )))
+		printf \\$(printf '%03o' $(( ${#s} & 255 )));
+	} >> "$tmpFile";
 fi;
 
 echo "http://127.0.0.1:8080/#$(zopfli --deflate -m "$tmpFile" -c | base64 | tr -d '\n')";
