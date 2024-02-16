@@ -82,7 +82,8 @@ const hash = window.location.hash.slice(1),
 	      stringSort = new Intl.Collator().compare,
 	      numberSort = (a: string, b: string) => parseFloat(a || "-Infinity") - parseFloat(b || "-Infinity"),
 	      sorters = Array.from({"length": max}, (_, n) => data.every(row => row.length < n || !isNaN(parseFloat(row[n]))) ? numberSort : stringSort),
-	      tbodyElement = tbody(data.map((row, n) => tr(row.map(cell => td(cell)).concat(Array.from({"length": max - row.length}, _ => td())), {"data-id": n+""})));
+	      tbodyElement = tbody(data.map((row, n) => tr(row.map(cell => td(cell)).concat(Array.from({"length": max - row.length}, _ => td())), {"data-id": n+""}))),
+	      tbodyChildren = Array.from(tbodyElement.children);
 
 	let sorted = -1,
 	    exportChar = ",";
@@ -94,7 +95,7 @@ const hash = window.location.hash.slice(1),
 			document.body.classList.remove("b");
 			document.getElementsByClassName("s")[0]?.removeAttribute("class");
 
-			amendNode(tbodyElement, Array.from(tbodyElement.children).sort((a: Element, b: Element) => parseInt((a as HTMLElement).dataset["id"]!) - parseInt((b as HTMLElement).dataset["id"]!)));
+			amendNode(tbodyElement, tbodyChildren.sort((a: Element, b: Element) => parseInt((a as HTMLElement).dataset["id"]!) - parseInt((b as HTMLElement).dataset["id"]!)));
 		}}),
 		table([
 			thead(Array.from({"length": max}, (_, n) => th(colName(n + 1), {"onclick": function (this: Element) {
@@ -108,11 +109,11 @@ const hash = window.location.hash.slice(1),
 					classes.add("s");
 					sorted = n;
 
-					amendNode(tbodyElement, Array.from(tbodyElement.children).sort((a, b) => sorters[n](a.children[n]?.textContent ?? "", b.children[n]?.textContent ?? "")))
+					amendNode(tbodyElement, tbodyChildren.sort((a, b) => sorters[n](a.children[n]?.textContent ?? "", b.children[n]?.textContent ?? "")))
 				} else {
 					classes.toggle("r");
 
-					amendNode(tbodyElement, Array.from(tbodyElement.children).reverse());
+					amendNode(tbodyElement, tbodyChildren.reverse());
 				}
 			}}))),
 			tbodyElement
@@ -121,7 +122,7 @@ const hash = window.location.hash.slice(1),
 		input("", {"id": "C", "type": "radio", "checked": "", "name":"E", "onclick": () => exportChar = ","}),
 		label("TSV", {"for": "T"}),
 		input("", {"id": "T", "type": "radio", "name":"E", "onclick": () => exportChar = "\t"}),
-		button("Export Table", {"onclick": () => a("", {"href": URL.createObjectURL(new Blob([Array.from(tbodyElement.children).map(row => data[parseInt((row as HTMLElement).dataset["id"]!)].map(cell => `"${cell.replaceAll('"', '""')}"`).join(exportChar)).join("\n")], {"type": "text/csv;charset=utf-8"})), "download": "table.csv"}).click()})
+		button("Export Table", {"onclick": () => a("", {"href": URL.createObjectURL(new Blob([tbodyChildren.map(row => data[parseInt((row as HTMLElement).dataset["id"]!)].map(cell => `"${cell.replaceAll('"', '""')}"`).join(exportChar)).join("\n")], {"type": "text/csv;charset=utf-8"})), "download": "table.csv"}).click()})
 	]);
       },
       sm = "\"",
