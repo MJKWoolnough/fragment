@@ -20,8 +20,9 @@ const hash = window.location.hash.slice(1),
 	const dom = fn(decodeText(data)),
 	      firstChild = dom.children[0],
 	      htmlElement = dom.children.length === 1 ? firstChild instanceof HTMLHtmlElement ? firstChild : firstChild instanceof HTMLBodyElement ? html(firstChild) : html(body(dom)) : html(body(dom)),
-	      bodyElement = Array.from(htmlElement.children).find(e => e instanceof HTMLBodyElement) as HTMLBodyElement ?? htmlElement.appendChild(body()),
-	      headElement = Array.from(htmlElement.children).find(e => e instanceof HTMLHeadElement) as HTMLHeadElement ?? htmlElement.insertBefore(head(), bodyElement),
+	      htmlChildren = Array.from(htmlElement.children),
+	      bodyElement = htmlChildren.find(e => e instanceof HTMLBodyElement) as HTMLBodyElement ?? htmlElement.appendChild(body()),
+	      headElement = htmlChildren.find(e => e instanceof HTMLHeadElement) as HTMLHeadElement ?? htmlElement.insertBefore(head(), bodyElement),
 	      headChildren = Array.from(headElement.children);
 
 	if (!headChildren.some(e => e instanceof HTMLTitleElement)) {
