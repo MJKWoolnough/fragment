@@ -133,6 +133,8 @@ if [ -n "$key" ]; then
 
 		read -n $(( 2 * 16#$rLen )) r;
 
+		assert "$(( 2 * 16#$rLen ))" "${#r}" "Failed to read $(( 16#$rLen )) r bytes.";
+
 		read -n 2 sanity;
 
 		assert "$sanity" "02" "Invalid s header byte.";
@@ -142,6 +144,8 @@ if [ -n "$key" ]; then
 		assert $(( $rLen + $sLen + 4 )) $fullLen "Invalid length detected.";
 
 		read -n $(( 2 * 16#$sLen )) s;
+
+		assert "$(( 2 * 16#$sLen ))" "${#s}" "Failed to read $(( 16#$sLen )) s bytes.";
 
 		r="$(echo -n "$r" | sed -e 's/^00//')";
 		s="$(echo -n "$s" | sed -e 's/^00//')";
