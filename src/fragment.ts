@@ -21,12 +21,12 @@ const hash = window.location.hash.slice(1),
 	      firstChild = dom.children[0],
 	      htmlElement = dom.children.length === 1 ? firstChild instanceof HTMLHtmlElement ? firstChild : firstChild instanceof HTMLBodyElement ? html(firstChild) : html(body(dom)) : html(body(dom)),
 	      htmlChildren = Array.from(htmlElement.children),
-	      bodyElement = htmlChildren.find(e => e instanceof HTMLBodyElement) as HTMLBodyElement ?? htmlElement.appendChild(body()),
-	      headElement = htmlChildren.find(e => e instanceof HTMLHeadElement) as HTMLHeadElement ?? htmlElement.insertBefore(head(), bodyElement),
+	      bodyElement = htmlChildren.find(e => e instanceof HTMLBodyElement) as HTMLBodyElement | null ?? null,
+	      headElement = htmlChildren.find(e => e instanceof HTMLHeadElement) as HTMLHeadElement | null ?? htmlElement.insertBefore(head(), bodyElement),
 	      headChildren = Array.from(headElement.children);
 
 	if (!headChildren.some(e => e instanceof HTMLTitleElement)) {
-		const titleText = bodyElement.firstChild instanceof HTMLHeadingElement ? bodyElement.firstChild.textContent : "";
+		const titleText = bodyElement?.firstChild instanceof HTMLHeadingElement ? bodyElement.firstChild.textContent : "";
 
 		if (titleText) {
 			amendNode(headElement, title(titleText));
