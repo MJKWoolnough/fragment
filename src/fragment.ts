@@ -11,12 +11,7 @@ import parser from './lib/parser.js';
 import {Arr, Bool, Obj, Or, Str, Tuple, Val} from './lib/typeguard.js';
 
 const hash = window.location.hash.slice(1),
-      withMime = (data: BlobPart, mime: string) => {
-	const blob = new Blob([data], {"type": mime}),
-	      url = URL.createObjectURL(blob);
-
-	window.location.href = url;
-      },
+      withMime = (data: BlobPart, mime: string) => window.location.href = URL.createObjectURL(new Blob([data], {"type": mime})),
       htmlDoctype = "<!DOCTYPE html>\n",
       decodeText = (data: Uint8Array) => (new TextDecoder()).decode(data),
       favicon = () => document.getElementsByTagName("link")[0]!.cloneNode(),
