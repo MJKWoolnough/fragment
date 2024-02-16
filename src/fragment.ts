@@ -216,16 +216,16 @@ pageLoad.then(() => hash ? fetch("data:application/octet-stream;base64," + hash)
 	const appendText =({done, value}: ReadableStreamReadResult<Uint8Array>): Uint8Array | Promise<Uint8Array> => {
 		if (done) {
 			return data;
-		} else {
-			const newData = new Uint8Array(data.length + value.length);
-
-			newData.set(data);
-			newData.set(value, data.length);
-
-			data = newData;
-
-			return reader.read().then(appendText);
 		}
+
+		const newData = new Uint8Array(data.length + value.length);
+
+		newData.set(data);
+		newData.set(value, data.length);
+
+		data = newData;
+
+		return reader.read().then(appendText);
 	      };
 
 	return reader.read().then(appendText);
