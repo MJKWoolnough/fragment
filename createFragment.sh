@@ -147,6 +147,8 @@ if [ -n "$key" ]; then
 
 		assert "$(( 2 * 16#$sLen ))" "${#s}" "Failed to read $(( 16#$sLen )) s bytes.";
 
+		assert "$(wc -c)" "0" "Unexpected data in signature."
+
 		r="$(echo -n "$r" | sed -e 's/^00//')";
 		s="$(echo -n "$s" | sed -e 's/^00//')";
 
