@@ -11,6 +11,7 @@ import parser from './lib/parser.js';
 import {Arr, Bool, Obj, Or, Str, Tuple, Val} from './lib/typeguard.js';
 
 const hash = window.location.hash.slice(1),
+      titleText = document.title,
       withMime = (data: BlobPart, mime: string) => window.location.href = URL.createObjectURL(new Blob([data], {"type": mime})),
       htmlDoctype = "<!DOCTYPE html>\n",
       decodeText = (data: Uint8Array) => (new TextDecoder()).decode(data),
@@ -26,11 +27,7 @@ const hash = window.location.hash.slice(1),
 	      headChildren = Array.from(headElement.children);
 
 	if (!headChildren.some(e => e instanceof HTMLTitleElement)) {
-		const titleText = bodyElement?.firstChild instanceof HTMLHeadingElement ? bodyElement.firstChild.textContent : "";
-
-		if (titleText) {
-			amendNode(headElement, title(titleText));
-		}
+		amendNode(headElement, title(bodyElement?.firstChild instanceof HTMLHeadingElement ? bodyElement.firstChild.textContent ?? titleText : titleText));
 	}
 
 	if (!headChildren.some(e => e instanceof HTMLLinkElement && e.getAttribute("rel") === "shortcut icon")) {
