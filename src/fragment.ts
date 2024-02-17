@@ -67,7 +67,7 @@ const hash = window.location.hash.slice(1),
 
 		return elem;
 	      },
-	      [a, button, input, label, table, tbody, td, th, thead, tr] = "a button input label table tbody td th thead tr".split(" ").map(e => (child?: Children, params?: Record<string, string | Function>) => amendNode(document.createElement(e), child, params)) as [DOMBind<HTMLElementTagNameMap["a"]>, DOMBind<HTMLElementTagNameMap["button"]>, DOMBind<HTMLElementTagNameMap["input"]>, DOMBind<HTMLElementTagNameMap["label"]>, DOMBind<HTMLElementTagNameMap["table"]>, DOMBind<HTMLElementTagNameMap["tbody"]>, DOMBind<HTMLElementTagNameMap["td"]>, DOMBind<HTMLElementTagNameMap["th"]>, DOMBind<HTMLElementTagNameMap["thead"]>, DOMBind<HTMLElementTagNameMap["tr"]>],
+	      [a, button, div, input, label, li, table, tbody, td, th, thead, tr, ul] = "a button div input label li table tbody td th thead tr ul".split(" ").map(e => (child?: Children, params?: Record<string, string | Function>) => amendNode(document.createElement(e), child, params)) as [DOMBind<HTMLElementTagNameMap["a"]>, DOMBind<HTMLElementTagNameMap["button"]>, DOMBind<HTMLElementTagNameMap["div"]>, DOMBind<HTMLElementTagNameMap["input"]>, DOMBind<HTMLElementTagNameMap["label"]>, DOMBind<HTMLElementTagNameMap["li"]>, DOMBind<HTMLElementTagNameMap["table"]>, DOMBind<HTMLElementTagNameMap["tbody"]>, DOMBind<HTMLElementTagNameMap["td"]>, DOMBind<HTMLElementTagNameMap["th"]>, DOMBind<HTMLElementTagNameMap["thead"]>, DOMBind<HTMLElementTagNameMap["tr"]>, DOMBind<HTMLElementTagNameMap["ul"]>],
 	      max = data.reduce((n, r) => Math.max(n, r.length), 0),
 	      colName = (n: number): string => {
 		if (n < 26) {
@@ -83,7 +83,28 @@ const hash = window.location.hash.slice(1),
 	      numberSort = (a: string, b: string) => parseFloat(a || "-Infinity") - parseFloat(b || "-Infinity"),
 	      sorters = Array.from({"length": max}, (_, n) => data.every(row => row.length < n || !isNaN(parseFloat(row[n]))) ? numberSort : stringSort),
 	      tbodyElement = tbody(data.map((row, n) => tr(row.map(cell => td(cell)).concat(Array.from({"length": max - row.length}, _ => td())), {"data-id": n+""}))),
-	      tbodyChildren = Array.from(tbodyElement.children);
+	      tbodyChildren = Array.from(tbodyElement.children),
+	      filterDivs = new Map<number, HTMLDivElement>(),
+	      makeFilterDiv = (n: number) => {
+		const l = input([], {"type": "radio", "name": "F_"+n, "checked": ""}),
+		      f = document.body.appendChild(div(ul([
+			li([
+				l
+			]),
+			li([
+				input([], {"type": "radio", "name": "F_"+n, "id": `F_${n}_1`}),
+				label("Remove Blank", {"for": `F_${n}_1`})
+			]),
+			li([
+				input([], {"type": "radio", "name": "F_"+n, "id": `F_${n}_2`}),
+				label("Only Blank", {"for": `F_${n}_2`})
+			])
+		      ]), {"class": "F", "tabindex": "-1"}));
+
+		filterDivs.set(n, f);
+
+		return f;
+	      };
 
 	let sorted = -1,
 	    exportChar = ",";
@@ -115,6 +136,10 @@ const hash = window.location.hash.slice(1),
 
 					amendNode(tbodyElement, tbodyChildren.reverse());
 				}
+			}, "oncontextmenu": (e: MouseEvent) => {
+				e.preventDefault();
+
+				amendNode(filterDivs.get(n) ?? makeFilterDiv(n), [], {"style": `left:${e.clientX}px;top:${e.clientY}px`}).focus();
 			}}))),
 			tbodyElement
 		]),
@@ -188,7 +213,7 @@ const hash = window.location.hash.slice(1),
 	withMime(htmlDoctype + html([
 			head([
 				title("Table"),
-				style({"type": "text/css"}, `table{background-color:#f8f8f8;color:#000;border-collapse: collapse}th{padding:0.5em 1.5em;background-color: #ddd}th,td{border:1px solid #000;cursor:pointer;user-select:none}th:hover{text-decoration: underline}th.s{background-repeat: no-repeat;background-position: right 0px bottom 0.5em;background-size: 1em 1em;background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 40 20'%3E%3Cpath d='M1,1 h38 l-19,18 z' fill='%23f00' stroke='%23000' stroke-linejoin='round' /%3E%3C/svg%3E%0A")}th.r{background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 40 20'%3E%3Cpath d='M1,19 h38 l-19,-18 z' fill='%23f00' stroke='%23000' stroke-linejoin='round' /%3E%3C/svg%3E%0A")}body:not(.b) br+button{visibility:hidden}`),
+				style({"type": "text/css"}, `table{background-color:#f8f8f8;color:#000;border-collapse: collapse}th{padding:0.5em 1.5em;background-color: #ddd}th,td{border:1px solid #000;cursor:pointer;user-select:none}th:hover{text-decoration: underline}th.s{background-repeat: no-repeat;background-position: right 0px bottom 0.5em;background-size: 1em 1em;background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 40 20'%3E%3Cpath d='M1,1 h38 l-19,18 z' fill='%23f00' stroke='%23000' stroke-linejoin='round' /%3E%3C/svg%3E%0A")}th.r{background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 40 20'%3E%3Cpath d='M1,19 h38 l-19,-18 z' fill='%23f00' stroke='%23000' stroke-linejoin='round' /%3E%3C/svg%3E%0A")}body:not(.b) br+button{visibility:hidden}.F{position:absolute;outline:none;background-color:#f8f8f8}.F:not(:focus-within){transform:scale(0)}`),
 				favicon(),
 				script({"type": "module"}, `(${makeTable.toString()})(${JSON.stringify(table)})`)
 			]),
