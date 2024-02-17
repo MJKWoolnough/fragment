@@ -86,7 +86,7 @@ const hash = window.location.hash.slice(1),
 	      isBlankFilter = (s: string) => !s,
 	      isNotBlankFilter = (s: string) => !!s,
 	      filters = new Map<number, (s: string) => boolean>(),
-	      runFilters = () => {},
+	      runFilters = () => data.forEach((row, i) => amendNode(tbodyElement.children[i], [], {"class": Array.from(filters.entries()).every(([n, fn]) => fn(row[n] ?? "")) ? "": "H"})),
 	      makeFilterDiv = (n: number) => {
 		let pre = false,
 		    post = false,
@@ -129,12 +129,12 @@ const hash = window.location.hash.slice(1),
 						setTextFilter();
 					}})
 				] : [
-					input("", {"onchange": function(this: HTMLInputElement) {
+					input("", {"oninput": function(this: HTMLInputElement) {
 						min = parseInt(this.value);
 						setNumberFilter();
 					}}),
 					" < x < ",
-					input("", {"onchange": function(this: HTMLInputElement) {
+					input("", {"oninput": function(this: HTMLInputElement) {
 						max = parseInt(this.value);
 						setNumberFilter();
 					}})
@@ -268,7 +268,7 @@ const hash = window.location.hash.slice(1),
 	withMime(htmlDoctype + html([
 			head([
 				title("Table"),
-				style({"type": "text/css"}, `table{background-color:#f8f8f8;color:#000;border-collapse: collapse}th{padding:0.5em 1.5em;background-color: #ddd}th,td{border:1px solid #000;cursor:pointer;user-select:none}th:hover{text-decoration: underline}th.s{background-repeat: no-repeat;background-position: right 0px bottom 0.5em;background-size: 1em 1em;background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 40 20'%3E%3Cpath d='M1,1 h38 l-19,18 z' fill='%23f00' stroke='%23000' stroke-linejoin='round' /%3E%3C/svg%3E%0A")}th.r{background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 40 20'%3E%3Cpath d='M1,19 h38 l-19,-18 z' fill='%23f00' stroke='%23000' stroke-linejoin='round' /%3E%3C/svg%3E%0A")}body:not(.b) br+button{visibility:hidden}.F{position:absolute;outline:none;background-color:#f8f8f8}.F:not(:focus-within){transform:scale(0)}`),
+				style({"type": "text/css"}, `table{background-color:#f8f8f8;color:#000;border-collapse: collapse}th{padding:0.5em 1.5em;background-color: #ddd}th,td{border:1px solid #000;cursor:pointer;user-select:none}th:hover{text-decoration: underline}th.s{background-repeat: no-repeat;background-position: right 0px bottom 0.5em;background-size: 1em 1em;background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 40 20'%3E%3Cpath d='M1,1 h38 l-19,18 z' fill='%23f00' stroke='%23000' stroke-linejoin='round' /%3E%3C/svg%3E%0A")}th.r{background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 40 20'%3E%3Cpath d='M1,19 h38 l-19,-18 z' fill='%23f00' stroke='%23000' stroke-linejoin='round' /%3E%3C/svg%3E%0A")}body:not(.b) br+button{visibility:hidden}.F{position:absolute;outline:none;background-color:#f8f8f8}.F:not(:focus-within){transform:scale(0)}.H{display:none}`),
 				favicon(),
 				script({"type": "module"}, `(${makeTable.toString()})(${JSON.stringify(table)})`)
 			]),
