@@ -42,9 +42,7 @@ const hash = window.location.hash.slice(1),
 	type DOMBind<T extends Element> = (child?: Children, params?: Record<string, string | Function>) => T;
 
 	const appendChildren = (elem: Element, child: Children) => {
-		if (typeof child === "string") {
-			elem.textContent = child;
-		} else if (child instanceof Array) {
+		if (child instanceof Array) {
 			for (const c of child) {
 				appendChildren(elem, c);
 			}
@@ -85,18 +83,75 @@ const hash = window.location.hash.slice(1),
 	      tbodyElement = tbody(data.map((row, n) => tr(row.map(cell => td(cell)).concat(Array.from({"length": max - row.length}, _ => td())), {"data-id": n+""}))),
 	      tbodyChildren = Array.from(tbodyElement.children),
 	      filterDivs = new Map<number, HTMLDivElement>(),
+	      isBlankFilter = (s: string) => !s,
+	      isNotBlankFilter = (s: string) => !!s,
+	      filters = new Map<number, (s: string) => boolean>(),
+	      runFilters = () => {},
 	      makeFilterDiv = (n: number) => {
+		let pre = false,
+		    post = false,
+		    text = "",
+		    re = new RegExp(""),
+		    min = NaN,
+		    max = NaN;
+
 		const l = input([], {"type": "radio", "name": "F_"+n, "checked": ""}),
+		      textFilter = (s: string) => re.test(s),
+		      setTextFilter = () => {
+			l.checked = true;
+			re = new RegExp((pre ? "^" : "") + text + (post ? "$" : ""));
+			filters.set(n, textFilter);
+			runFilters();
+		      },
+		      numberFilter = (s: string) => {
+			const n = parseFloat(s);
+
+			return (isNaN(min) ? true : min <= n) && (isNaN(max) ? true : n <= max);
+		      },
+		      setNumberFilter = () => {
+			filters.set(n, numberFilter);
+			runFilters();
+		      },
 		      f = document.body.appendChild(div(ul([
 			li([
-				l
+				l,
+				sorters[n] === stringSort ? [
+					button("_", {"onclick": function(this: HTMLButtonElement) {
+						amendNode(this, (pre = !pre) ? "^" : "_");
+						setTextFilter();
+					}}),
+					input("", {"type": "text", "oninput": function(this: HTMLInputElement) {
+						text = this.value;
+						setTextFilter();
+					}}),
+					button("_", {"onclick": function(this: HTMLButtonElement) {
+						amendNode(this, (post = !post) ? "$" : "_");
+						setTextFilter();
+					}})
+				] : [
+					input("", {"onchange": function(this: HTMLInputElement) {
+						min = parseInt(this.value);
+						setNumberFilter();
+					}}),
+					" < x < ",
+					input("", {"onchange": function(this: HTMLInputElement) {
+						max = parseInt(this.value);
+						setNumberFilter();
+					}})
+				]
 			]),
 			li([
-				input([], {"type": "radio", "name": "F_"+n, "id": `F_${n}_1`}),
+				input([], {"type": "radio", "name": "F_"+n, "id": `F_${n}_1`, "onclick": () => {
+					filters.set(n, isNotBlankFilter);
+					runFilters();
+				}}),
 				label("Remove Blank", {"for": `F_${n}_1`})
 			]),
 			li([
-				input([], {"type": "radio", "name": "F_"+n, "id": `F_${n}_2`}),
+				input([], {"type": "radio", "name": "F_"+n, "id": `F_${n}_2`, "onclick": () => {
+					filters.set(n, isBlankFilter);
+					runFilters();
+				}}),
 				label("Only Blank", {"for": `F_${n}_2`})
 			])
 		      ]), {"class": "F", "tabindex": "-1"}));
