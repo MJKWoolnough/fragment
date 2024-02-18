@@ -105,8 +105,7 @@ const hash = window.location.hash.slice(1),
 		    min = -Infinity,
 		    max = Infinity;
 
-		const l = input([], {"type": "radio", "name": "F_"+n, "checked": ""}),
-		      textFilter = (s: string) => re.test(s),
+		const textFilter = (s: string) => re.test(s),
 		      setTextFilter = () => {
 			l.checked = true;
 			re = new RegExp((pre ? "^" : "") + text + (post ? "$" : ""));
@@ -119,10 +118,11 @@ const hash = window.location.hash.slice(1),
 			return min <= n && n <= max;
 		      },
 		      setNumberFilter = () => {
-
+			l.checked = true;
 			filters.set(n, numberFilter);
 			runFilters();
 		      },
+		      l = input([], {"type": "radio", "name": "F_"+n, "checked": "", "onclick": sorters[n] === stringSort ? setTextFilter : setNumberFilter}),
 		      f = document.body.appendChild(div(ul([
 			li([
 				l,
