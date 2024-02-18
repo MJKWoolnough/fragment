@@ -101,6 +101,7 @@ const hash = window.location.hash.slice(1),
 		let pre = false,
 		    post = false,
 		    text = "",
+		    caseInsensitive = false,
 		    re = new RegExp(""),
 		    min = -Infinity,
 		    max = Infinity;
@@ -108,7 +109,7 @@ const hash = window.location.hash.slice(1),
 		const textFilter = (s: string) => re.test(s),
 		      setTextFilter = () => {
 			l.checked = true;
-			re = new RegExp((pre ? "^" : "") + text + (post ? "$" : ""));
+			re = new RegExp((pre ? "^" : "") + text + (post ? "$" : ""), caseInsensitive ? "i" : "");
 			filters.set(n, textFilter);
 			runFilters();
 		      },
@@ -137,6 +138,10 @@ const hash = window.location.hash.slice(1),
 					}}),
 					button("_", {"onclick": function(this: HTMLButtonElement) {
 						amendNode(this, (post = !post) ? "$" : "_");
+						setTextFilter();
+					}}),
+					button("_", {"onclick": function(this: HTMLButtonElement) {
+						amendNode(this, (caseInsensitive = !caseInsensitive) ? "i" : "_");
 						setTextFilter();
 					}})
 				] : [
