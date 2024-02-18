@@ -69,7 +69,7 @@ const hash = window.location.hash.slice(1),
 
 		return elem;
 	      },
-	      [a, button, div, input, label, li, table, tbody, td, th, thead, tr, ul] = "a button div input label li table tbody td th thead tr ul".split(" ").map(e => (child?: Children, params?: Record<string, string | Function>) => amendNode(document.createElement(e), child, params)) as [DOMBind<HTMLElementTagNameMap["a"]>, DOMBind<HTMLElementTagNameMap["button"]>, DOMBind<HTMLElementTagNameMap["div"]>, DOMBind<HTMLElementTagNameMap["input"]>, DOMBind<HTMLElementTagNameMap["label"]>, DOMBind<HTMLElementTagNameMap["li"]>, DOMBind<HTMLElementTagNameMap["table"]>, DOMBind<HTMLElementTagNameMap["tbody"]>, DOMBind<HTMLElementTagNameMap["td"]>, DOMBind<HTMLElementTagNameMap["th"]>, DOMBind<HTMLElementTagNameMap["thead"]>, DOMBind<HTMLElementTagNameMap["tr"]>, DOMBind<HTMLElementTagNameMap["ul"]>],
+	      [a, button, input, label, li, table, tbody, td, th, thead, tr, ul] = "a button input label li table tbody td th thead tr ul".split(" ").map(e => (child?: Children, params?: Record<string, string | Function>) => amendNode(document.createElement(e), child, params)) as [DOMBind<HTMLElementTagNameMap["a"]>, DOMBind<HTMLElementTagNameMap["button"]>, DOMBind<HTMLElementTagNameMap["input"]>, DOMBind<HTMLElementTagNameMap["label"]>, DOMBind<HTMLElementTagNameMap["li"]>, DOMBind<HTMLElementTagNameMap["table"]>, DOMBind<HTMLElementTagNameMap["tbody"]>, DOMBind<HTMLElementTagNameMap["td"]>, DOMBind<HTMLElementTagNameMap["th"]>, DOMBind<HTMLElementTagNameMap["thead"]>, DOMBind<HTMLElementTagNameMap["tr"]>, DOMBind<HTMLElementTagNameMap["ul"]>],
 	      max = data.reduce((n, r) => Math.max(n, r.length), 0),
 	      colName = (n: number): string => {
 		if (n < 26) {
@@ -92,7 +92,7 @@ const hash = window.location.hash.slice(1),
 
 		return rowElm;
 	      })),
-	      filterDivs = new Map<number, HTMLDivElement>(),
+	      filterLists = new Map<number, HTMLUListElement>(),
 	      isBlankFilter = (s: string) => !s,
 	      isNotBlankFilter = (s: string) => !!s,
 	      filters = new Map<number, (s: string) => boolean>(),
@@ -128,7 +128,7 @@ const hash = window.location.hash.slice(1),
 			runFilters();
 		      },
 		      l = input([], {"type": "radio", "name": "F_"+n, "checked": "", "onclick": sorters[n] === stringSort ? setTextFilter : setNumberFilter}),
-		      f = document.body.appendChild(div(ul([
+		      f = document.body.appendChild(ul([
 			li([
 				l,
 				sorters[n] === stringSort ? [
@@ -182,9 +182,9 @@ const hash = window.location.hash.slice(1),
 				}}),
 				label("Only Blank", {"for": `F_${n}_2`})
 			])
-		      ]), {"class": "F", "tabindex": "-1"}));
+		      ], {"class": "F", "tabindex": "-1"}));
 
-		filterDivs.set(n, f);
+		filterLists.set(n, f);
 
 		return f;
 	      };
@@ -222,7 +222,7 @@ const hash = window.location.hash.slice(1),
 			}, "oncontextmenu": (e: MouseEvent) => {
 				e.preventDefault();
 
-				amendNode(filterDivs.get(n) ?? makeFilterDiv(n), [], {"style": `left:${e.clientX}px;top:${e.clientY}px`}).focus();
+				amendNode(filterLists.get(n) ?? makeFilterDiv(n), [], {"style": `left:${e.clientX}px;top:${e.clientY}px`}).focus();
 			}}))),
 			tbodyElement
 		]),
