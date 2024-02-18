@@ -60,7 +60,11 @@ const hash = window.location.hash.slice(1),
 		}
 
 		if (child) {
-			appendChildren(elem, child);
+			if (typeof child === "string") {
+				elem.textContent = child;
+			} else {
+				appendChildren(elem, child);
+			}
 		}
 
 		return elem;
