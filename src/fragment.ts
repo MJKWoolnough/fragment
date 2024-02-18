@@ -102,8 +102,8 @@ const hash = window.location.hash.slice(1),
 		    post = false,
 		    text = "",
 		    re = new RegExp(""),
-		    min = NaN,
-		    max = NaN;
+		    min = -Infinity,
+		    max = Infinity;
 
 		const l = input([], {"type": "radio", "name": "F_"+n, "checked": ""}),
 		      textFilter = (s: string) => re.test(s),
@@ -116,9 +116,10 @@ const hash = window.location.hash.slice(1),
 		      numberFilter = (s: string) => {
 			const n = parseFloat(s);
 
-			return (isNaN(min) ? true : min <= n) && (isNaN(max) ? true : n <= max);
+			return min <= n && n <= max;
 		      },
 		      setNumberFilter = () => {
+
 			filters.set(n, numberFilter);
 			runFilters();
 		      },
@@ -141,11 +142,19 @@ const hash = window.location.hash.slice(1),
 				] : [
 					input("", {"oninput": function(this: HTMLInputElement) {
 						min = parseInt(this.value);
+						if (isNaN(min)) {
+							min = -Infinity;
+						}
+
 						setNumberFilter();
 					}}),
 					" < x < ",
 					input("", {"oninput": function(this: HTMLInputElement) {
 						max = parseInt(this.value);
+						if (isNaN(max)) {
+							max = Infinity;
+						}
+
 						setNumberFilter();
 					}})
 				]
