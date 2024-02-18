@@ -115,7 +115,7 @@ const hash = window.location.hash.slice(1),
 		      numberFilter = (s: string) => {
 			const n = parseFloat(s);
 
-			return min <= n && n <= max;
+			return min <= n && n <= max || min === -Infinity && max === Infinity;
 		      },
 		      setNumberFilter = () => {
 			l.checked = true;
