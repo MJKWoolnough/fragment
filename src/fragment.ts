@@ -97,9 +97,9 @@ const hash = window.location.hash.slice(1),
 	      isNotBlankFilter = (s: string) => !!s,
 	      filters = new Map<number, (s: string) => boolean>(),
 	      runFilters = () => {
-		      for (const [elm, data] of dataMap.entries()) {
-			      amendNode(elm, [], {"class": Array.from(filters.entries()).every(([n, fn]) => fn(data[n] ?? "")) ? "": "H"});
-		      }
+		for (const [elm, data] of dataMap.entries()) {
+			amendNode(elm, [], {"class": Array.from(filters.entries()).every(([n, fn]) => fn(data[n] ?? "")) ? "": "H"});
+		}
 	      },
 	      makeFilterDiv = (n: number) => {
 		let pre = false,
