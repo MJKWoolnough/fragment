@@ -106,6 +106,7 @@ const hash = window.location.hash.slice(1),
 	      makeToggleButton = (c: string, fn: (v: boolean) => void) => button(c, {"class": "t", "onclick": function(this: HTMLButtonElement) {
 		      fn(!this.classList.toggle("t"));
 	      }}),
+	      regexpSpecials = "\\/.*+?|()[]{}".split(""),
 	      makeFilterDiv = (n: number) => {
 		let pre = false,
 		    post = false,
@@ -118,7 +119,7 @@ const hash = window.location.hash.slice(1),
 		const textFilter = (s: string) => re.test(s),
 		      setTextFilter = () => {
 			l.checked = true;
-			re = new RegExp((pre ? "^" : "") + text + (post ? "$" : ""), caseInsensitive ? "i" : "");
+			re = new RegExp((pre ? "^" : "") + regexpSpecials.reduce((text, c) => text.replaceAll(c, "\\" + c), text) + (post ? "$" : ""), caseInsensitive ? "i" : "");
 			filters.set(n, textFilter);
 			runFilters();
 		      },
