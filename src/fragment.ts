@@ -319,7 +319,7 @@ pageLoad.then(() => hash ? fetch("data:application/octet-stream;base64," + hash)
 .then(reader => {
 	let data = new Uint8Array(0);
 
-	const appendText =({done, value}: ReadableStreamReadResult<Uint8Array>): Uint8Array | Promise<Uint8Array> => {
+	const appendText = ({done, value}: ReadableStreamReadResult<Uint8Array>): Uint8Array | Promise<Uint8Array> => {
 		if (done) {
 			return data;
 		}
