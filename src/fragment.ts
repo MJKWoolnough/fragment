@@ -103,6 +103,9 @@ const hash = window.location.hash.slice(1),
 			amendNode(elm, [], {"class": Array.from(filters.entries()).every(([n, fn]) => fn(data[n] ?? "")) ? "": "H"});
 		}
 	      },
+	      makeToggleButton = (c: string, fn: (v: boolean) => void) => button(c, {"class": "t", "onclick": function(this: HTMLButtonElement) {
+		      fn(!this.classList.toggle("t"));
+	      }}),
 	      makeFilterDiv = (n: number) => {
 		let pre = false,
 		    post = false,
@@ -134,22 +137,22 @@ const hash = window.location.hash.slice(1),
 			li([
 				l,
 				sorters[n] === stringSort ? [
-					button("^", {"class": "t", "onclick": function(this: HTMLButtonElement) {
-						pre = !this.classList.toggle("t");
+					makeToggleButton("^", v => {
+						pre = v;
 						setTextFilter();
-					}}),
+					}),
 					input("", {"type": "text", "oninput": function(this: HTMLInputElement) {
 						text = this.value;
 						setTextFilter();
 					}}),
-					button("$", {"class": "t", "onclick": function(this: HTMLButtonElement) {
-						post = !this.classList.toggle("t");
+					makeToggleButton("$", v => {
+						post = v;
 						setTextFilter();
-					}}),
-					button("i", {"class": "t", "onclick": function(this: HTMLButtonElement) {
-						caseInsensitive = !this.classList.toggle("t");
+					}),
+					makeToggleButton("i", v => {
+						caseInsensitive = v;
 						setTextFilter();
-					}})
+					})
 				] : [
 					input("", {"oninput": function(this: HTMLInputElement) {
 						min = parseInt(this.value);
