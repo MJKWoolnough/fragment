@@ -198,8 +198,10 @@ const hash = window.location.hash.slice(1),
 
 			document.body.classList.remove("b");
 			document.getElementsByClassName("s")[0]?.removeAttribute("class");
+			filterLists.clear();
+			filters.clear();
 
-			amendNode(tbodyElement, Array.from(dataMap.keys()));
+			amendNode(tbodyElement, Array.from(dataMap.keys()).map(row => amendNode(row, [], {"class": ""})));
 		}}),
 		table([
 			thead(Array.from({"length": max}, (_, n) => th(colName(n + 1), {"onclick": function (this: Element) {
