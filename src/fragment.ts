@@ -389,6 +389,15 @@ const hash = window.location.hash.slice(1),
 	      })))
       }))});
 
+let config: Awaited<ReturnType<typeof loadConfig>> = {
+	"markdownHTML": [
+		["a", "name"],
+		["details"],
+		["summary"]
+	],
+	"keys": []
+};
+
 if (hash === "CONFIG") {
 	pageLoad.then(loadConfig)
 	.then(() =>{
