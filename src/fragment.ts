@@ -9,7 +9,7 @@ import pageLoad from './lib/load.js';
 import parseMarkdown from './lib/markdown.js';
 import {text2DOM} from './lib/misc.js';
 import parser from './lib/parser.js';
-import {Arr, Bool, Obj, Or, Str, Tuple, Val} from './lib/typeguard.js';
+import {And, Arr, Bool, Obj, Or, Str, Tuple, Val} from './lib/typeguard.js';
 
 const hash = window.location.hash.slice(1),
       titleText = document.title,
@@ -369,17 +369,22 @@ const hash = window.location.hash.slice(1),
 	);
       },
       isStr = Str(),
-      keysTG = Arr(Obj({
-	"hash": Or(Val("SHA-256"), Val("SHA-384"), Val("SHA-512")),
-	"key": Obj({
-		"alg": isStr,
-		"crv": isStr,
-		"ext": Bool(),
-		"key_ops": Tuple(Val("verify")),
-		"kty": isStr,
-		"x": isStr,
-		"y": isStr
-	})
+      optTG = Obj({
+
+      }),
+      configTG = And(optTG, Obj({
+	"keys": Arr(And(optTG, Obj({
+		"hash": Or(Val("SHA-256"), Val("SHA-384"), Val("SHA-512")),
+		"key": Obj({
+			"alg": isStr,
+			"crv": isStr,
+			"ext": Bool(),
+			"key_ops": Tuple(Val("verify")),
+			"kty": isStr,
+			"x": isStr,
+			"y": isStr
+		})
+	      })))
       }));
 
 if (hash === "CONFIG") {
@@ -426,8 +431,8 @@ if (hash === "CONFIG") {
 			      signedData = data.slice(0, -signatureLen - 2),
 			      signature = data.slice(-signatureLen - 2, -2);
 
-			return HTTPRequest("keys.json", {"response": "json", "checker": keysTG})
-			.then(keys => Promise.any(keys.map(key => window.crypto.subtle.importKey("jwk", key.key, {"name": "ECDSA", "namedCurve": key.key.crv}, true, ["verify"])
+			return HTTPRequest("keys.json", {"response": "json", "checker": configTG})
+			.then(config => Promise.any(config.keys.map(key => window.crypto.subtle.importKey("jwk", key.key, {"name": "ECDSA", "namedCurve": key.key.crv}, true, ["verify"])
 				.then(ck => window.crypto.subtle.verify({"name": "ECDSA", "hash": key.hash}, ck, signature, signedData))
 				.then(r => r || Promise.reject(""))
 			)))
