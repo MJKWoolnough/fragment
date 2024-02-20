@@ -317,94 +317,99 @@ const hash = window.location.hash.slice(1),
 	);
       };
 
-pageLoad.then(() => hash ? fetch("data:application/octet-stream;base64," + hash) : Promise.reject("No Fragment"))
-.then(data => data.blob())
-.then(b => b.stream().pipeThrough<Uint8Array>(new DecompressionStream("deflate-raw")).getReader())
-.then(reader => {
-	let data = new Uint8Array(0);
+if (hash === "CONFIG") {
+	pageLoad.then(() => {
+	});
+} else {
+	pageLoad.then(() => hash ? fetch("data:application/octet-stream;base64," + hash) : Promise.reject("No Fragment"))
+	.then(data => data.blob())
+	.then(b => b.stream().pipeThrough<Uint8Array>(new DecompressionStream("deflate-raw")).getReader())
+	.then(reader => {
+		let data = new Uint8Array(0);
 
-	const appendText = ({done, value}: ReadableStreamReadResult<Uint8Array>): Uint8Array | Promise<Uint8Array> => {
-		if (done) {
-			return data;
-		}
+		const appendText = ({done, value}: ReadableStreamReadResult<Uint8Array>): Uint8Array | Promise<Uint8Array> => {
+			if (done) {
+				return data;
+			}
 
-		const newData = new Uint8Array(data.length + value.length);
+			const newData = new Uint8Array(data.length + value.length);
 
-		newData.set(data);
-		newData.set(value, data.length);
+			newData.set(data);
+			newData.set(value, data.length);
 
-		data = newData;
+			data = newData;
+
+			return reader.read().then(appendText);
+		      };
 
 		return reader.read().then(appendText);
-	      };
+	})
+	.then(data => {
+		switch (String.fromCharCode(data[0])) {
+		case 'P':
+		case 'S':
+		case 'H':
+		case 'M':
+		case 'B':
+		case 'C':
+		case 'T':
+			if (!window.isSecureContext) {
+				return Promise.reject("Cannot handle signed data in insecure mode");
+			}
 
-	return reader.read().then(appendText);
-})
-.then(data => {
-	switch (String.fromCharCode(data[0])) {
-	case 'P':
-	case 'S':
-	case 'H':
-	case 'M':
-	case 'B':
-	case 'C':
-	case 'T':
-		if (!window.isSecureContext) {
-			return Promise.reject("Cannot handle signed data in insecure mode");
+			const isStr = Str(),
+			      keysTG = Arr(Obj({
+				"hash": Or(Val("SHA-256"), Val("SHA-384"), Val("SHA-512")),
+				"key": Obj({
+					"alg": isStr,
+					"crv": isStr,
+					"ext": Bool(),
+					"key_ops": Tuple(Val("verify")),
+					"kty": isStr,
+					"x": isStr,
+					"y": isStr
+				})
+			      })),
+			      signatureLen = data.at(-2)! << 8 | data.at(-1)!,
+			      signedData = data.slice(0, -signatureLen - 2),
+			      signature = data.slice(-signatureLen - 2, -2);
+
+			return HTTPRequest("keys.json", {"response": "json", "checker": keysTG})
+			.then(keys => Promise.any(keys.map(key => window.crypto.subtle.importKey("jwk", key.key, {"name": "ECDSA", "namedCurve": key.key.crv}, true, ["verify"])
+				.then(ck => window.crypto.subtle.verify({"name": "ECDSA", "hash": key.hash}, ck, signature, signedData))
+				.then(r => r || Promise.reject(""))
+			)))
+			.catch(() => Promise.reject("Unable to verify signature"))
+			.then(() => signedData);
 		}
 
-		const isStr = Str(),
-		      keysTG = Arr(Obj({
-			"hash": Or(Val("SHA-256"), Val("SHA-384"), Val("SHA-512")),
-			"key": Obj({
-				"alg": isStr,
-				"crv": isStr,
-				"ext": Bool(),
-				"key_ops": Tuple(Val("verify")),
-				"kty": isStr,
-				"x": isStr,
-				"y": isStr
-			})
-		      })),
-		      signatureLen = data.at(-2)! << 8 | data.at(-1)!,
-		      signedData = data.slice(0, -signatureLen - 2),
-		      signature = data.slice(-signatureLen - 2, -2);
+		return data;
+	})
+	.then(data => {
+		if (!data.length) {
+			return Promise.reject("No Data");
+		}
 
-		return HTTPRequest("keys.json", {"response": "json", "checker": keysTG})
-		.then(keys => Promise.any(keys.map(key => window.crypto.subtle.importKey("jwk", key.key, {"name": "ECDSA", "namedCurve": key.key.crv}, true, ["verify"])
-			.then(ck => window.crypto.subtle.verify({"name": "ECDSA", "hash": key.hash}, ck, signature, signedData))
-			.then(r => r || Promise.reject(""))
-		)))
-		.catch(() => Promise.reject("Unable to verify signature"))
-		.then(() => signedData);
-	}
+		const contents = data.slice(1);
 
-	return data;
-})
-.then(data => {
-	if (!data.length) {
-		return Promise.reject("No Data");
-	}
+		switch (String.fromCharCode(data[0]).toLowerCase()) {
+		case 'p':
+			return withMime(contents, "text/plain");
+		case 's':
+			return withMime(contents, "image/svg+xml");
+		case 'h':
+			return processToHTML(contents, text2DOM);
+		case 'm':
+			return processToHTML(contents, parseMarkdown);
+		case 'b':
+			return processToHTML(contents, processBBCode);
+		case 'c':
+			return parseTable(contents, ",");
+		case 't':
+			return parseTable(contents, "\t");
+		}
 
-	const contents = data.slice(1);
-
-	switch (String.fromCharCode(data[0]).toLowerCase()) {
-	case 'p':
-		return withMime(contents, "text/plain");
-	case 's':
-		return withMime(contents, "image/svg+xml");
-	case 'h':
-		return processToHTML(contents, text2DOM);
-	case 'm':
-		return processToHTML(contents, parseMarkdown);
-	case 'b':
-		return processToHTML(contents, processBBCode);
-	case 'c':
-		return parseTable(contents, ",");
-	case 't':
-		return parseTable(contents, "\t");
-	}
-
-	return Promise.reject("Unknown content type");
-})
-.catch(err => document.body.textContent = "Error: " + err);
+		return Promise.reject("Unknown content type");
+	})
+	.catch(err => document.body.textContent = "Error: " + err);
+}
