@@ -385,10 +385,12 @@ const hash = window.location.hash.slice(1),
 			"y": isStr
 		})
 	      })))
-      }));
+      })),
+      loadConfig = () => HTTPRequest("keys.json", {"response": "json", "checker": configTG});
 
 if (hash === "CONFIG") {
-	pageLoad.then(() => {
+	pageLoad.then(loadConfig)
+	.then(() =>{
 	});
 } else {
 	pageLoad.then(() => hash ? fetch("data:application/octet-stream;base64," + hash) : Promise.reject("No Fragment"))
@@ -431,7 +433,7 @@ if (hash === "CONFIG") {
 			      signedData = data.slice(0, -signatureLen - 2),
 			      signature = data.slice(-signatureLen - 2, -2);
 
-			return HTTPRequest("keys.json", {"response": "json", "checker": configTG})
+			return loadConfig()
 			.then(config => Promise.any(config.keys.map(key => window.crypto.subtle.importKey("jwk", key.key, {"name": "ECDSA", "namedCurve": key.key.crv}, true, ["verify"])
 				.then(ck => window.crypto.subtle.verify({"name": "ECDSA", "hash": key.hash}, ck, signature, signedData))
 				.then(r => r || Promise.reject(""))
