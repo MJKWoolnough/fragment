@@ -367,7 +367,20 @@ const hash = window.location.hash.slice(1),
 		]).outerHTML,
 		"text/html"
 	);
-      };
+      },
+      isStr = Str(),
+      keysTG = Arr(Obj({
+	"hash": Or(Val("SHA-256"), Val("SHA-384"), Val("SHA-512")),
+	"key": Obj({
+		"alg": isStr,
+		"crv": isStr,
+		"ext": Bool(),
+		"key_ops": Tuple(Val("verify")),
+		"kty": isStr,
+		"x": isStr,
+		"y": isStr
+	})
+      }));
 
 if (hash === "CONFIG") {
 	pageLoad.then(() => {
@@ -409,20 +422,7 @@ if (hash === "CONFIG") {
 				return Promise.reject("Cannot handle signed data in insecure mode");
 			}
 
-			const isStr = Str(),
-			      keysTG = Arr(Obj({
-				"hash": Or(Val("SHA-256"), Val("SHA-384"), Val("SHA-512")),
-				"key": Obj({
-					"alg": isStr,
-					"crv": isStr,
-					"ext": Bool(),
-					"key_ops": Tuple(Val("verify")),
-					"kty": isStr,
-					"x": isStr,
-					"y": isStr
-				})
-			      })),
-			      signatureLen = data.at(-2)! << 8 | data.at(-1)!,
+			const signatureLen = data.at(-2)! << 8 | data.at(-1)!,
 			      signedData = data.slice(0, -signatureLen - 2),
 			      signature = data.slice(-signatureLen - 2, -2);
 
