@@ -315,6 +315,8 @@ const hash = window.location.hash.slice(1),
 					"th": {
 						"padding": "0.5em 1.5em",
 						"background-color": "#ddd",
+						"cursor": "pointer",
+						"user-select": "none",
 						":hover": {
 							"text-decoration": "underline"
 						},
@@ -329,9 +331,7 @@ const hash = window.location.hash.slice(1),
 						}
 					},
 					"th,td": {
-						"border": "1px solid #000",
-						"cursor": "pointer",
-						"user-select": "none"
+						"border": "1px solid #000"
 					},
 					"body:not(.b) br+button": {
 						"visibility": "hidden"
