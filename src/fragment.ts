@@ -372,7 +372,7 @@ const hash = window.location.hash.slice(1),
       optTG = Obj({
 
       }),
-      configTG = And(optTG, Obj({
+      loadConfig = () => HTTPRequest("keys.json", {"response": "json", "checker": And(optTG, Obj({
 	"keys": Arr(And(optTG, Obj({
 		"hash": Or(Val("SHA-256"), Val("SHA-384"), Val("SHA-512")),
 		"key": Obj({
@@ -385,8 +385,7 @@ const hash = window.location.hash.slice(1),
 			"y": isStr
 		})
 	      })))
-      })),
-      loadConfig = () => HTTPRequest("keys.json", {"response": "json", "checker": configTG});
+      }))});
 
 if (hash === "CONFIG") {
 	pageLoad.then(loadConfig)
