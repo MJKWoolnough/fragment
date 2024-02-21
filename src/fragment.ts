@@ -444,10 +444,12 @@ if (hash === "CONFIG") {
 			      signature = data.slice(-signatureLen - 2, -2);
 
 			return loadConfig()
-			.then(config => Promise.any(config.keys.map(key => window.crypto.subtle.importKey("jwk", key.key, {"name": "ECDSA", "namedCurve": key.key.crv}, true, ["verify"])
+			.then(c => Object.assign(config, c))
+			.then(c => Promise.any(c.keys.map(key => window.crypto.subtle.importKey("jwk", key.key, {"name": "ECDSA", "namedCurve": key.key.crv}, true, ["verify"])
 				.then(ck => window.crypto.subtle.verify({"name": "ECDSA", "hash": key.hash}, ck, signature, signedData))
-				.then(r => r || Promise.reject(""))
+				.then(r => r ? key : Promise.reject(""))
 			)))
+			.then(c => Object.assign(config, c))
 			.catch(() => Promise.reject("Unable to verify signature"))
 			.then(() => signedData);
 		}
