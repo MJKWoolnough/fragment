@@ -387,16 +387,15 @@ const hash = window.location.hash.slice(1),
 			"y": isStr
 		})
 	      })))
-      }))});
-
-let config: Awaited<ReturnType<typeof loadConfig>> = {
+      }))}),
+      config: Awaited<ReturnType<typeof loadConfig>> = {
 	"markdownHTML": [
 		["a", "name"],
 		["details"],
 		["summary"]
 	],
 	"keys": []
-};
+      };
 
 if (hash === "CONFIG") {
 	pageLoad.then(loadConfig)
