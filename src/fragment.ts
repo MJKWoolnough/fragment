@@ -5,7 +5,7 @@ import {all as allBBCodeTags} from './lib/bbcode_tags.js';
 import {HTTPRequest} from './lib/conn.js';
 import {add} from './lib/css.js';
 import {amendNode} from './lib/dom.js';
-import {a, body, br, head, html, script, title} from './lib/html.js';
+import {a, body, br, head, html, img, pre, script, title} from './lib/html.js';
 import pageLoad from './lib/load.js';
 import parseMarkdown from './lib/markdown.js';
 import {text2DOM} from './lib/misc.js';
@@ -35,7 +35,14 @@ const hash = window.location.hash.slice(1),
 		amendNode(headElement, favicon());
 	}
 
-	withMime(htmlDoctype + htmlElement.outerHTML, "text/html");
+	processDOM(htmlElement);
+      },
+      processDOM = (htmlElement: HTMLHtmlElement) => {
+	if (config.embed) {
+		document.replaceChild(htmlElement, document.documentElement);
+	} else {
+		withMime(htmlDoctype + htmlElement.outerHTML, "text/html");
+	}
       },
       makeTable = (data: string[][]) => {
 	type Children = string | Element | Children[];
@@ -292,7 +299,71 @@ const hash = window.location.hash.slice(1),
 		}
 
 		return p.return(tokenRow, skipNL);
-	      };
+	      },
+	      scriptElement = script({"type": "module"}),
+	      htmlElement = html([
+		head([
+			title("Table"),
+			add({
+				"table": {
+					"background-color": "#f8f8f8",
+					"color": "#000",
+					"border-collapse": "collapse",
+					"margin-bottom": "1em"
+				},
+				"th": {
+					"padding": "0.5em 1.5em",
+					"background-color": "#ddd",
+					"cursor": "pointer",
+					"user-select": "none",
+					":hover": {
+						"text-decoration": "underline"
+					},
+					".s": {
+						"background-repeat": "no-repeat",
+						"background-position": "right 0px bottom 0.5em",
+						"background-size": "1em 1em",
+						"background-image": `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 40 20'%3E%3Cpath d='M1,1 h38 l-19,18 z' fill='%23f00' stroke='%23000' stroke-linejoin='round' /%3E%3C/svg%3E%0A")`
+					},
+					".r": {
+						"background-image":` url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 40 20'%3E%3Cpath d='M1,19 h38 l-19,-18 z' fill='%23f00' stroke='%23000' stroke-linejoin='round' /%3E%3C/svg%3E%0A")`
+					}
+				},
+				"th,td": {
+					"border": "1px solid #000"
+				},
+				"body:not(.b) br+button": {
+					"visibility": "hidden"
+				},
+				".F": {
+					"position": "absolute",
+					"list-style": "none",
+					"padding": "0.5em",
+					"outline": "none",
+					"border": "2px solid #000",
+					"background-color": "#f8f8f8",
+					":not(:focus-within)": {
+						"transform": "scale(0)",
+						" *": {
+							"display": "none"
+						}
+					}
+				},
+				".H": {
+					"display": "none"
+				},
+				".t": {
+					"color": "transparent"
+				}
+			}).render(),
+			favicon(),
+			scriptElement,
+		]),
+		body([
+			a({"href": window.location + ""}, "Link to this Table"),
+			br()
+		])
+	      ]);
 
 	for (const row of parser(decodeText(contents).trimEnd(), parseCell, parseRow)) {
 		if (row.type < 0){
@@ -302,71 +373,9 @@ const hash = window.location.hash.slice(1),
 		table.push(row.data.filter(cell => cell.type !== tokenNL).map(cell => cell.data[0] === sm ? cell.data.slice(1, -1).replace(sm+sm, sm)  : cell.data));
 	}
 
-	withMime(htmlDoctype + html([
-			head([
-				title("Table"),
-				add({
-					"table": {
-						"background-color": "#f8f8f8",
-						"color": "#000",
-						"border-collapse": "collapse",
-						"margin-bottom": "1em"
-					},
-					"th": {
-						"padding": "0.5em 1.5em",
-						"background-color": "#ddd",
-						"cursor": "pointer",
-						"user-select": "none",
-						":hover": {
-							"text-decoration": "underline"
-						},
-						".s": {
-							"background-repeat": "no-repeat",
-							"background-position": "right 0px bottom 0.5em",
-							"background-size": "1em 1em",
-							"background-image": `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 40 20'%3E%3Cpath d='M1,1 h38 l-19,18 z' fill='%23f00' stroke='%23000' stroke-linejoin='round' /%3E%3C/svg%3E%0A")`
-						},
-						".r": {
-							"background-image":` url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 40 20'%3E%3Cpath d='M1,19 h38 l-19,-18 z' fill='%23f00' stroke='%23000' stroke-linejoin='round' /%3E%3C/svg%3E%0A")`
-						}
-					},
-					"th,td": {
-						"border": "1px solid #000"
-					},
-					"body:not(.b) br+button": {
-						"visibility": "hidden"
-					},
-					".F": {
-						"position": "absolute",
-						"list-style": "none",
-						"padding": "0.5em",
-						"outline": "none",
-						"border": "2px solid #000",
-						"background-color": "#f8f8f8",
-						":not(:focus-within)": {
-							"transform": "scale(0)",
-							" *": {
-								"display": "none"
-							}
-						}
-					},
-					".H": {
-						"display": "none"
-					},
-					".t": {
-						"color": "transparent"
-					}
-				}).render(),
-				favicon(),
-				script({"type": "module"}, `(${makeTable.toString()})(${JSON.stringify(table)})`)
-			]),
-			body([
-				a({"href": window.location + ""}, "Link to this Table"),
-				br()
-			])
-		]).outerHTML,
-		"text/html"
-	);
+	amendNode(scriptElement, `(${makeTable.toString()})(${JSON.stringify(table)})`);
+
+	processDOM(htmlElement);
       },
       isStr = Str(),
       isBool = Bool(),
@@ -463,9 +472,9 @@ if (hash === "CONFIG") {
 
 		switch (String.fromCharCode(data[0]).toLowerCase()) {
 		case 'p':
-			return withMime(contents, "text/plain");
+			return config.embed ? amendNode(document.body, pre(decodeText(data as Uint8Array))) : withMime(contents, "text/plain");
 		case 's':
-			return withMime(contents, "image/svg+xml");
+			return config.embed ? amendNode(document.body, img({"src": URL.createObjectURL(new Blob([data], {"type": "image/svg+xml"}))})) : withMime(contents, "image/svg+xml");
 		case 'h':
 			return processToHTML(contents, text2DOM);
 		case 'm':
