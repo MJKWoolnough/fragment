@@ -18,7 +18,6 @@ const hash = window.location.hash.slice(1),
       htmlDoctype = "<!DOCTYPE html>\n",
       decodeText = (data: Uint8Array) => (new TextDecoder()).decode(data),
       favicon = () => document.getElementsByTagName("link")[0]!.cloneNode(),
-      processBBCode = (data: string) => parseBBCode(allBBCodeTags, data),
       processToHTML = (data: Uint8Array, fn: (contents: string) => DocumentFragment) => {
 	const dom = fn(decodeText(data)),
 	      firstChild = dom.children[0],
@@ -470,9 +469,9 @@ if (hash === "CONFIG") {
 		case 'h':
 			return processToHTML(contents, text2DOM);
 		case 'm':
-			return processToHTML(contents, parseMarkdown);
+			return processToHTML(contents, data => parseMarkdown(data, {"allowedHTML": config.markdownHTML as [keyof HTMLElementTagNameMap, ...string[]][] | null ?? null}));
 		case 'b':
-			return processToHTML(contents, processBBCode);
+			return processToHTML(contents, data => parseBBCode(allBBCodeTags, data));
 		case 'c':
 			return parseTable(contents, ",");
 		case 't':
