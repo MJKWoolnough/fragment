@@ -207,7 +207,7 @@ const hash = window.location.hash.slice(1),
 	    exportChar = ",";
 
 	amendNode(document.body, [
-		button("Reset Table", {"onclick": () => {
+		button("Reset Table", {"class": "B", "onclick": () => {
 			sorted = -1;
 
 			document.body.classList.remove("b");
@@ -332,7 +332,7 @@ const hash = window.location.hash.slice(1),
 				"th,td": {
 					"border": "1px solid #000"
 				},
-				"body:not(.b) br+button": {
+				"body:not(.b) button.B": {
 					"visibility": "hidden"
 				},
 				".F": {
@@ -359,7 +359,7 @@ const hash = window.location.hash.slice(1),
 			favicon(),
 			scriptElement,
 		]),
-		body([
+		body(config.embed ? [] : [
 			a({"href": window.location + ""}, "Link to this Table"),
 			br()
 		])
