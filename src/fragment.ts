@@ -357,7 +357,7 @@ const hash = window.location.hash.slice(1),
 				}
 			}).render(),
 			favicon(),
-			scriptElement,
+			scriptElement
 		]),
 		body(config.embed ? [] : [
 			a({"href": window.location + ""}, "Link to this Table"),
