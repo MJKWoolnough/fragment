@@ -374,7 +374,7 @@ const hash = window.location.hash.slice(1),
 	"markdownHTML": Arr(Tuple(isStr, ...isStr)),
 	"embed": isBool
       })),
-      loadConfig = () => HTTPRequest("keys.json", {"response": "json", "checker": And(optTG, Obj({
+      loadConfig = () => HTTPRequest("config.json", {"response": "json", "checker": And(optTG, Obj({
 	"keys": Arr(And(optTG, Obj({
 		"hash": Or(Val("SHA-256"), Val("SHA-384"), Val("SHA-512")),
 		"key": Obj({
