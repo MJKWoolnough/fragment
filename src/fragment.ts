@@ -398,7 +398,7 @@ const hash = window.location.hash.slice(1),
 
 if (hash === "CONFIG") {
 	pageLoad.then(loadConfig)
-	.then(() =>{
+	.then(() => {
 	});
 } else {
 	pageLoad.then(() => hash ? fetch("data:application/octet-stream;base64," + hash) : Promise.reject("No Fragment"))
