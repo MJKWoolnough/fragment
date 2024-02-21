@@ -1,4 +1,5 @@
 import type {Phrase, Phraser, PhraserFn, Token, TokenFn, Tokeniser} from './lib/parser.js';
+import type {TypeGuardOf} from './lib/typeguard.js';
 import parseBBCode from './lib/bbcode.js';
 import {all as allBBCodeTags} from './lib/bbcode_tags.js';
 import {HTTPRequest} from './lib/conn.js';
@@ -388,13 +389,12 @@ const hash = window.location.hash.slice(1),
 		})
 	      })))
       }))}),
-      config: Awaited<ReturnType<typeof loadConfig>> = {
+      config: TypeGuardOf<typeof optTG> = {
 	"markdownHTML": [
 		["a", "name"],
 		["details"],
 		["summary"]
-	],
-	"keys": []
+	]
       };
 
 if (hash === "CONFIG") {
