@@ -426,6 +426,8 @@ if (hash === "CONFIG") {
 		return reader.read().then(appendText);
 	})
 	.then(data => {
+		const c = loadConfig().then(c => Object.assign(config, c));
+
 		switch (String.fromCharCode(data[0])) {
 		case 'P':
 		case 'S':
@@ -442,9 +444,7 @@ if (hash === "CONFIG") {
 			      signedData = data.slice(0, -signatureLen - 2),
 			      signature = data.slice(-signatureLen - 2, -2);
 
-			return loadConfig()
-			.then(c => Object.assign(config, c))
-			.then(c => Promise.any(c.keys.map(key => window.crypto.subtle.importKey("jwk", key.key, {"name": "ECDSA", "namedCurve": key.key.crv}, true, ["verify"])
+			return c.then(c => Promise.any(c.keys.map(key => window.crypto.subtle.importKey("jwk", key.key, {"name": "ECDSA", "namedCurve": key.key.crv}, true, ["verify"])
 				.then(ck => window.crypto.subtle.verify({"name": "ECDSA", "hash": key.hash}, ck, signature, signedData))
 				.then(r => r ? key : Promise.reject(""))
 			)))
@@ -453,7 +453,7 @@ if (hash === "CONFIG") {
 			.then(() => signedData);
 		}
 
-		return data;
+		return c.then(() => data);
 	})
 	.then(data => {
 		if (!data.length) {
