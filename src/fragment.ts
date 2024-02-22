@@ -254,7 +254,6 @@ const hash = window.location.hash.slice(1),
 	const tokenCell = 1,
 	      tokenNL = 2,
 	      tokenRow = 3,
-	      table: string[][] = [],
 	      skipChar = (tk: Tokeniser) => {
 		if (tk.next() === "\n") {
 			return tk.return(tokenNL, parseCell);
@@ -300,14 +299,7 @@ const hash = window.location.hash.slice(1),
 
 		return p.return(tokenRow, skipNL);
 	      },
-	      scriptElement = script({"type": "module"}),
 	      arrow = (up: 0 | 1) => `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 40 20'%3E%3Cpath d='M1,${19 - 18 * up} h38 l-19,${(2 * up - 1) * 18} z' fill='%23f00' stroke='%23000' stroke-linejoin='round' /%3E%3C/svg%3E%0A")`;
-
-	for (const row of processToEnd(parser(decodeText(contents).trimEnd(), parseCell, parseRow))) {
-		table.push(row.data.filter(cell => cell.type !== tokenNL).map(cell => cell.data[0] === sm ? cell.data.slice(1, -1).replace(sm+sm, sm)  : cell.data));
-	}
-
-	amendNode(scriptElement, `(${makeTable.toString()})(${JSON.stringify(table)})`);
 
 	processDOM(html([
 		head([
@@ -365,7 +357,7 @@ const hash = window.location.hash.slice(1),
 				}
 			}).render(),
 			favicon(),
-			scriptElement
+			script({"type": "module"}, `(${makeTable.toString()})(${JSON.stringify(Array.from(processToEnd(parser(decodeText(contents).trimEnd(), parseCell, parseRow))).map(row => row.data.filter(cell => cell.type !== tokenNL).map(cell => cell.data[0] === sm ? cell.data.slice(1, -1).replace(sm+sm, sm)  : cell.data)))})`)
 		]),
 		body(config.embed ? [] : [
 			a({"href": window.location + ""}, "Link to this Table"),
