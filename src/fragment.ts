@@ -9,7 +9,7 @@ import {a, body, br, head, html, img, pre, script, title} from './lib/html.js';
 import pageLoad from './lib/load.js';
 import parseMarkdown from './lib/markdown.js';
 import {text2DOM} from './lib/misc.js';
-import parser from './lib/parser.js';
+import parser, {processToEnd} from './lib/parser.js';
 import {And, Arr, Bool, Obj, Or, Part, Str, Tuple, Val} from './lib/typeguard.js';
 
 const hash = window.location.hash.slice(1),
@@ -365,11 +365,7 @@ const hash = window.location.hash.slice(1),
 		])
 	      ]);
 
-	for (const row of parser(decodeText(contents).trimEnd(), parseCell, parseRow)) {
-		if (row.type < 0){
-			break;
-		}
-
+	for (const row of processToEnd(parser(decodeText(contents).trimEnd(), parseCell, parseRow))) {
 		table.push(row.data.filter(cell => cell.type !== tokenNL).map(cell => cell.data[0] === sm ? cell.data.slice(1, -1).replace(sm+sm, sm)  : cell.data));
 	}
 
