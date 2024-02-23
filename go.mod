@@ -1,6 +1,6 @@
 module vimagination.zapto.org/fragment
 
-go 1.21.6
+go 1.22
 
 require (
 	vimagination.zapto.org/httpgzip v1.0.0
