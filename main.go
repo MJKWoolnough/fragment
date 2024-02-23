@@ -43,13 +43,6 @@ func main() {
 	flag.StringVar(&config, "c", os.Getenv("CONFIG_FILE"), "Configuration File")
 	flag.Parse()
 
-	if config == "" {
-		fmt.Fprintln(os.Stderr, "configuration file required")
-		flag.PrintDefaults()
-
-		os.Exit(1)
-	}
-
 	pass = strings.ToUpper(pass)
 
 	if config != "" {
