@@ -384,7 +384,7 @@ const hash = window.location.hash.slice(1),
 			"y": isStr
 		})
 	      })))
-      }))}),
+      }))}).catch(() => ({"keys": []})),
       config: TypeGuardOf<typeof optTG> = {
 	"markdownHTML": [
 		["a", "name"],
