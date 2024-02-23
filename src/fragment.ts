@@ -5,7 +5,7 @@ import {all as allBBCodeTags} from './lib/bbcode_tags.js';
 import {HTTPRequest} from './lib/conn.js';
 import {add} from './lib/css.js';
 import {amendNode} from './lib/dom.js';
-import {a, body, br, head, html, img, pre, script, title} from './lib/html.js';
+import {a, body, br, head, html, img, input, label, pre, script, title} from './lib/html.js';
 import pageLoad from './lib/load.js';
 import parseMarkdown from './lib/markdown.js';
 import {text2DOM} from './lib/misc.js';
@@ -400,8 +400,11 @@ if (hash === "CONFIG") {
 	pageLoad.then(() => HTTPRequest(configJSON, {"method": "OPTIONS", "response": "xh"}))
 	.then(xh => hasPost = !!xh.getResponseHeader("Allow")?.split(/, */).includes("POST"), () => {})
 	.then(loadConfig)
-	.then(() => {
-		alert(hasPost);
+	.then(config => {
+		amendNode(document.body, [
+			label({"for": "embed"}, "Embed Content"),
+			input({"id": "embed", "type": "checked", "checked": config.embed})
+		]);
 	});
 } else {
 	pageLoad.then(() => hash ? fetch("data:application/octet-stream;base64," + hash) : Promise.reject("No Fragment"))
