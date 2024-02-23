@@ -394,8 +394,13 @@ const hash = window.location.hash.slice(1),
       };
 
 if (hash === "CONFIG") {
-	pageLoad.then(loadConfig)
+	let hasPost = false;
+
+	pageLoad.then(() => HTTPRequest("config.json", {"method": "OPTIONS", "response": "xh"}))
+	.then(xh => hasPost = !!xh.getResponseHeader("Allow")?.split(/, */).includes("POST"), () => {})
+	.then(loadConfig)
 	.then(() => {
+		alert(hasPost);
 	});
 } else {
 	pageLoad.then(() => hash ? fetch("data:application/octet-stream;base64," + hash) : Promise.reject("No Fragment"))
