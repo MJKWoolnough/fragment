@@ -371,7 +371,8 @@ const hash = window.location.hash.slice(1),
 	"markdownHTML": Arr(Tuple(isStr, ...isStr)),
 	"embed": isBool
       })),
-      loadConfig = () => HTTPRequest("config.json", {"response": "json", "checker": And(optTG, Obj({
+      configJSON = "config.json",
+      loadConfig = () => HTTPRequest(configJSON, {"response": "json", "checker": And(optTG, Obj({
 	"keys": Arr(And(optTG, Obj({
 		"hash": Or(Val("SHA-256"), Val("SHA-384"), Val("SHA-512")),
 		"key": Obj({
@@ -396,7 +397,7 @@ const hash = window.location.hash.slice(1),
 if (hash === "CONFIG") {
 	let hasPost = false;
 
-	pageLoad.then(() => HTTPRequest("config.json", {"method": "OPTIONS", "response": "xh"}))
+	pageLoad.then(() => HTTPRequest(configJSON, {"method": "OPTIONS", "response": "xh"}))
 	.then(xh => hasPost = !!xh.getResponseHeader("Allow")?.split(/, */).includes("POST"), () => {})
 	.then(loadConfig)
 	.then(() => {
