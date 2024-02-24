@@ -439,7 +439,17 @@ if (hash === "CONFIG") {
 				params: paramsList
 			};
 		      },
-		      markdownHTML = new NodeMap<string, TagItem>(ul(), noSort, config.markdownHTML?.map(([tag, ...params]) => [tag, addMarkdownHTMLItem(tag, ...params)]));
+		      markdownHTML = new NodeMap<string, TagItem>(ul(), noSort, config.markdownHTML?.map(([tag, ...params]) => [tag, addMarkdownHTMLItem(tag, ...params)])),
+		      password = input({"type": "password", "id": "password"}),
+		      getConfigJSON = () => {
+			if (markdownHTML.size) {
+				config.markdownHTML = Array.from(markdownHTML.entries()).map(([tag, {params}]) => [tag, ...params.map(p => p.param)]);
+			} else {
+				delete config.markdownHTML;
+			}
+
+			return JSON.stringify(config);
+		      };
 
 		amendNode(document.head, add({
 			"label:after": {
@@ -481,15 +491,21 @@ if (hash === "CONFIG") {
 				}
 			}}, "+"),
 			br(),
-			button({"onclick": () => {
-				if (markdownHTML.size) {
-					config.markdownHTML = Array.from(markdownHTML.entries()).map(([tag, {params}]) => [tag, ...params.map(p => p.param)]);
-				} else {
-					delete config.markdownHTML;
-				}
-
-				prompt("Copy this to your config file:", JSON.stringify(config));
-			}}, "Export Config")
+			hasPost ? [
+				label({"for": "password"}, "Password for Saving"),
+				password,
+				button({"onclick": () => {
+					HTTPRequest(configJSON, {
+						"method": "POST",
+						"password": password.value,
+						"data": getConfigJSON()
+					})
+					.then(() => alert("Saved"))
+					.catch(e => alert(`Error: ${e}`));
+				}}, "Save"),
+				br(),
+			] : [],
+			button({"onclick": () => prompt("Copy this to your config file:", getConfigJSON())}, "Export Config")
 		]);
 	});
 } else {
