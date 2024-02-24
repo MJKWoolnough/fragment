@@ -61,11 +61,15 @@ func main() {
 				if !ok {
 					w.WriteHeader(http.StatusUnauthorized)
 
+					io.WriteString(w, "Password Required")
+
 					return
 				}
 
 				if pass != fmt.Sprintf("%X", sha256.Sum256([]byte(password))) {
 					w.WriteHeader(http.StatusForbidden)
+
+					io.WriteString(w, "Invalid Password")
 
 					return
 				}
