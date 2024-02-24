@@ -27,7 +27,7 @@ type Config struct {
 		Key  struct {
 			Alg    string   `json:"alg"`
 			CRV    string   `json:"crv"`
-			Ext    string   `json:"ext"`
+			Ext    bool     `json:"ext"`
 			KeyOps []string `json:"key_ops"`
 			KTY    string   `json:"kty"`
 			X      string   `json:"x"`
