@@ -441,6 +441,24 @@ if (hash === "CONFIG") {
 		      },
 		      markdownHTML = new NodeMap<string, TagItem>(ul(), noSort, config.markdownHTML?.map(([tag, ...params]) => [tag, addMarkdownHTMLItem(tag, ...params)]));
 
+		amendNode(document.head, add({
+			"label:after": {
+				"content": `":"`
+			},
+			"ul": {
+				"list-style": "none",
+
+				" ul": {
+					"display": "inline-block",
+					"padding": 0,
+
+					" li": {
+						"display": "inline-block",
+					}
+				}
+			}
+		}).render());
+
 		amendNode(document.body, [
 			label({"for": "embed"}, "Embed Content"),
 			input({"id": "embed", "type": "checkbox", "checked": config.embed}),
