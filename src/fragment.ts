@@ -448,11 +448,11 @@ if (hash === "CONFIG") {
 			"ul": {
 				"list-style": "none",
 
-				" ul": {
+				">li>ul": {
 					"display": "inline-block",
 					"padding": 0,
 
-					" li": {
+					">li": {
 						"display": "inline-block",
 					}
 				}
