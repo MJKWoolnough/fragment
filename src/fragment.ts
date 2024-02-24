@@ -461,7 +461,9 @@ if (hash === "CONFIG") {
 
 		amendNode(document.body, [
 			label({"for": "embed"}, "Embed Content"),
-			input({"id": "embed", "type": "checkbox", "checked": config.embed}),
+			input({"id": "embed", "type": "checkbox", "checked": config.embed, "onclick": function(this: HTMLInputElement) {
+				config.embed = this.checked;
+			}}),
 			br(),
 			label("Allowed Markdown HTML Tags"),
 			markdownHTML[node],
