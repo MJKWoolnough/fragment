@@ -479,7 +479,17 @@ if (hash === "CONFIG") {
 
 					markdownHTML.set(tag, addMarkdownHTMLItem(tag));
 				}
-			}}, "+")
+			}}, "+"),
+			br(),
+			button({"onclick": () => {
+				if (markdownHTML.size) {
+					config.markdownHTML = Array.from(markdownHTML.entries()).map(([tag, {params}]) => [tag, ...params.map(p => p.param)]);
+				} else {
+					delete config.markdownHTML;
+				}
+
+				prompt("Copy this to your config file:", JSON.stringify(config));
+			}}, "Export Config")
 		]);
 	});
 } else {
