@@ -5,10 +5,11 @@ import {all as allBBCodeTags} from './lib/bbcode_tags.js';
 import {HTTPRequest} from './lib/conn.js';
 import {add} from './lib/css.js';
 import {amendNode} from './lib/dom.js';
-import {a, body, br, head, html, img, input, label, pre, script, title} from './lib/html.js';
+import {a, body, br, button, head, html, img, input, label, li, pre, script, title, ul} from './lib/html.js';
 import pageLoad from './lib/load.js';
 import parseMarkdown from './lib/markdown.js';
 import {text2DOM} from './lib/misc.js';
+import {NodeArray, NodeMap, node, noSort} from './lib/nodes.js';
 import parser, {processToEnd} from './lib/parser.js';
 import {And, Arr, Bool, Obj, Or, Part, Str, Tuple, Val} from './lib/typeguard.js';
 
@@ -402,9 +403,63 @@ if (hash === "CONFIG") {
 	.then(xh => hasPost = !!xh.getResponseHeader("Allow")?.split(/, */).includes("POST"), () => {})
 	.then(loadConfig)
 	.then(config => {
+		type TagItem = {
+			[node]: HTMLLIElement;
+			tag: string;
+			params: ParamItem[];
+		}
+
+		type ParamItem = {
+			[node]: HTMLLIElement;
+			param: string;
+		}
+
+		const addHTMLParam = (param = "") => {
+			const pi = {
+				[node]: li(input({"value": param, "oninput": function(this: HTMLInputElement) {
+					pi.param = this.value;
+				}})),
+				param
+			      };
+
+			return pi;
+		      },
+		      addMarkdownHTMLItem = (tag: string, ...params: string[]) => {
+			const paramsList = new NodeArray<ParamItem>(ul(), noSort, params.map(addHTMLParam));
+
+			return {
+				[node]: li([
+					button({"onclick": () => markdownHTML.delete(tag)}, "X"),
+					label(tag),
+					paramsList[node],
+					button({"onclick": () => paramsList.push(addHTMLParam())}, "+"),
+					button({"onclick": () => paramsList.pop()}, "-"),
+				]),
+				tag: tag,
+				params: paramsList
+			};
+		      },
+		      markdownHTML = new NodeMap<string, TagItem>(ul(), noSort, config.markdownHTML?.map(([tag, ...params]) => [tag, addMarkdownHTMLItem(tag, ...params)]));
+
 		amendNode(document.body, [
 			label({"for": "embed"}, "Embed Content"),
-			input({"id": "embed", "type": "checked", "checked": config.embed})
+			input({"id": "embed", "type": "checkbox", "checked": config.embed}),
+			br(),
+			label("Allowed Markdown HTML Tags"),
+			markdownHTML[node],
+			button({"onclick": () => {
+				const tag = prompt("Enter HTML Tag name");
+
+				if (tag) {
+					if (markdownHTML.has(tag)) {
+						alert("Tag already exists");
+
+						return;
+					}
+
+					markdownHTML.set(tag, addMarkdownHTMLItem(tag));
+				}
+			}}, "+")
 		]);
 	});
 } else {
