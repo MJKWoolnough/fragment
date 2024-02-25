@@ -94,7 +94,13 @@ func main() {
 
 				defer f.Close()
 
-				json.NewEncoder(f).Encode(c)
+				if err := json.NewEncoder(f).Encode(c); err != nil {
+					w.WriteHeader(http.StatusInternalServerError)
+
+					io.WriteString(w, err.Error())
+
+					return
+				}
 			}))
 
 		}
