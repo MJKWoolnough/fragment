@@ -398,12 +398,11 @@ const hash = window.location.hash.slice(1),
       };
 
 if (hash === "CONFIG") {
-	let hasPost = false;
-
-	pageLoad.then(() => HTTPRequest(configJSON, {"method": "OPTIONS", "response": "xh"}))
-	.then(xh => hasPost = !!xh.getResponseHeader("Allow")?.split(/, */).includes("POST"), () => {})
-	.then(loadConfig)
-	.then(config => {
+	pageLoad.then(() => Promise.all([
+		HTTPRequest(configJSON, {"method": "OPTIONS", "response": "xh"}),
+		loadConfig()
+	]))
+	.then(([xh, config]) => {
 		type TagItem = {
 			[node]: HTMLLIElement;
 			tag: string;
@@ -415,7 +414,8 @@ if (hash === "CONFIG") {
 			param: string;
 		}
 
-		const addHTMLParam = (param = "") => {
+		const hasPost = !!xh.getResponseHeader("Allow")?.split(/, */).includes("POST"),
+		      addHTMLParam = (param = "") => {
 			const pi = {
 				[node]: li(input({"value": param, "oninput": function(this: HTMLInputElement) {
 					pi.param = this.value;
