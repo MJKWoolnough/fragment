@@ -11,7 +11,7 @@ import parseMarkdown from './lib/markdown.js';
 import {text2DOM} from './lib/misc.js';
 import {NodeArray, NodeMap, node, noSort} from './lib/nodes.js';
 import parser, {processToEnd} from './lib/parser.js';
-import {And, Arr, Bool, Obj, Or, Part, Str, Tuple, Val} from './lib/typeguard.js';
+import {And, Arr, Bool, Null, Obj, Or, Part, Str, Tuple, Val} from './lib/typeguard.js';
 
 const hash = window.location.hash.slice(1),
       titleText = document.title,
@@ -368,9 +368,10 @@ const hash = window.location.hash.slice(1),
       },
       isStr = Str(),
       isBool = Bool(),
+      isNull = Null(),
       optTG = Part(Obj({
-	"markdownHTML": Arr(Tuple(isStr, ...isStr)),
-	"embed": isBool
+	"markdownHTML": Or(isNull, Arr(Tuple(isStr, ...isStr))),
+	"embed": Or(isNull, isBool)
       })),
       configTG = And(optTG, Obj({
 	"keys": Arr(And(optTG, Obj({
