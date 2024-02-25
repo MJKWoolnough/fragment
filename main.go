@@ -23,6 +23,7 @@ type Config struct {
 	Options
 	Keys []struct {
 		Options
+		Name string `json:"name"`
 		Hash string `json:"hash"`
 		Key  struct {
 			Alg    string   `json:"alg"`

@@ -375,6 +375,7 @@ const hash = window.location.hash.slice(1),
       })),
       configTG = And(optTG, Obj({
 	"keys": Arr(And(optTG, Obj({
+		"name": isStr,
 		"hash": Or(Val("SHA-256"), Val("SHA-384"), Val("SHA-512")),
 		"key": Obj({
 			"alg": isStr,
