@@ -399,7 +399,7 @@ const hash = window.location.hash.slice(1),
 
 if (hash === "CONFIG") {
 	pageLoad.then(() => Promise.all([
-		HTTPRequest(configJSON, {"method": "OPTIONS", "response": "xh"}),
+		HTTPRequest(configJSON, {"method": "OPTIONS", "response": "xh"}).catch(() => null),
 		loadConfig()
 	]))
 	.then(([xh, config]) => {
@@ -414,7 +414,7 @@ if (hash === "CONFIG") {
 			param: string;
 		}
 
-		const hasPost = !!xh.getResponseHeader("Allow")?.split(/, */).includes("POST"),
+		const hasPost = !!xh?.getResponseHeader("Allow")?.split(/, */).includes("POST"),
 		      addHTMLParam = (param = "") => {
 			const pi = {
 				[node]: li(input({"value": param, "oninput": function(this: HTMLInputElement) {
