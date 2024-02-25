@@ -501,7 +501,7 @@ if (hash === "CONFIG") {
 						"data": getConfigJSON()
 					})
 					.then(() => alert("Saved"))
-					.catch(e => alert(`Error: ${e}`));
+					.catch(alert);
 				}}, "Save"),
 				br(),
 			] : [],
