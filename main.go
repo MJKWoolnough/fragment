@@ -98,6 +98,8 @@ func main() {
 
 					return
 				}
+
+				w.WriteHeader(http.StatusNoContent)
 			}))
 
 			options = "OPTIONS, GET, HEAD, POST"
