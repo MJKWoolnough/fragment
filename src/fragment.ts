@@ -5,7 +5,7 @@ import {all as allBBCodeTags} from './lib/bbcode_tags.js';
 import {HTTPRequest} from './lib/conn.js';
 import {add} from './lib/css.js';
 import {amendNode} from './lib/dom.js';
-import {a, body, br, button, head, html, img, input, label, li, pre, script, title, ul} from './lib/html.js';
+import {a, body, br, button, fieldset, head, html, img, input, label, legend, li, pre, script, title, ul} from './lib/html.js';
 import pageLoad from './lib/load.js';
 import parseMarkdown from './lib/markdown.js';
 import {text2DOM} from './lib/misc.js';
@@ -454,7 +454,8 @@ if (hash === "CONFIG") {
 
 			config.markdownHTML = markdownHTML as any as [string, ...string[]][];
 
-			return [
+			return fieldset([
+				legend("name" in config ? `Key: ${config.name}` : "Base Config"),
 				label({"for": "embed"}, "Embed Content"),
 				input({"id": "embed", "type": "checkbox", "checked": config.embed, "onclick": function(this: HTMLInputElement) {
 					config.embed = this.checked;
@@ -475,7 +476,7 @@ if (hash === "CONFIG") {
 						markdownHTML.set(tag, addMarkdownHTMLItem(markdownHTML, tag));
 					}
 				}}, "+"),
-			      ];
+			      ]);
 		      };
 
 		amendNode(document.head, add({
