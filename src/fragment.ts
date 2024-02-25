@@ -425,7 +425,7 @@ if (hash === "CONFIG") {
 
 			return pi;
 		      },
-		      addMarkdownHTMLItem = (tag: string, ...params: string[]) => {
+		      addMarkdownHTMLItem = (markdownHTML: Map<string, TagItem>, tag: string, ...params: string[]) => {
 			const paramsList = new NodeArray<ParamItem>(ul(), noSort, params.map(addHTMLParam));
 
 			return {
@@ -440,16 +440,41 @@ if (hash === "CONFIG") {
 				params: paramsList
 			};
 		      },
-		      markdownHTML = new NodeMap<string, TagItem>(ul(), noSort, config.markdownHTML?.map(([tag, ...params]) => [tag, addMarkdownHTMLItem(tag, ...params)])),
 		      password = input({"type": "password", "id": "password"}),
-		      getConfigJSON = () => {
-			if (markdownHTML.size) {
-				config.markdownHTML = Array.from(markdownHTML.entries()).map(([tag, {params}]) => [tag, ...params.map(p => p.param)]);
-			} else {
-				delete config.markdownHTML;
+		      getConfigJSON = () => JSON.stringify(config),
+		      createConfigOptions = (config: TypeGuardOf<typeof optTG>) => {
+			const markdownHTML = new NodeMap<string, TagItem>(ul());
+
+			for (const [tag, ...params] of config.markdownHTML ?? []) {
+				markdownHTML.set(tag, addMarkdownHTMLItem(markdownHTML, tag, ...params));
 			}
 
-			return JSON.stringify(config);
+			(markdownHTML as any).toJSON = () => Array.from(markdownHTML.values()).map(v => [v.tag, ...v.params.map(p => p.param)]);
+
+			config.markdownHTML = markdownHTML as any as [string, ...string[]][];
+
+			return [
+				label({"for": "embed"}, "Embed Content"),
+				input({"id": "embed", "type": "checkbox", "checked": config.embed, "onclick": function(this: HTMLInputElement) {
+					config.embed = this.checked;
+				}}),
+				br(),
+				label("Allowed Markdown HTML Tags"),
+				markdownHTML[node],
+				button({"onclick": () => {
+					const tag = prompt("Enter HTML Tag name");
+
+					if (tag) {
+						if (markdownHTML.has(tag)) {
+							alert("Tag already exists");
+
+							return;
+						}
+
+						markdownHTML.set(tag, addMarkdownHTMLItem(markdownHTML, tag));
+					}
+				}}, "+"),
+			      ];
 		      };
 
 		amendNode(document.head, add({
@@ -471,26 +496,7 @@ if (hash === "CONFIG") {
 		}).render());
 
 		amendNode(document.body, [
-			label({"for": "embed"}, "Embed Content"),
-			input({"id": "embed", "type": "checkbox", "checked": config.embed, "onclick": function(this: HTMLInputElement) {
-				config.embed = this.checked;
-			}}),
-			br(),
-			label("Allowed Markdown HTML Tags"),
-			markdownHTML[node],
-			button({"onclick": () => {
-				const tag = prompt("Enter HTML Tag name");
-
-				if (tag) {
-					if (markdownHTML.has(tag)) {
-						alert("Tag already exists");
-
-						return;
-					}
-
-					markdownHTML.set(tag, addMarkdownHTMLItem(tag));
-				}
-			}}, "+"),
+			createConfigOptions(config),
 			br(),
 			hasPost ? [
 				label({"for": "password"}, "Password for Saving"),
