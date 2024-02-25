@@ -50,12 +50,9 @@ func main() {
 			http.ServeFile(w, r, config)
 		}))
 
-		if pass != "" {
-			http.Handle(http.MethodOptions+" /config.json", http.HandlerFunc(func(w http.ResponseWriter, _ *http.Request) {
-				w.Header().Set("Allow", "OPTIONS, GET, HEAD, POST")
-				w.WriteHeader(http.StatusNoContent)
-			}))
+		options := "OPTIONS, GET, HEAD"
 
+		if pass != "" {
 			http.Handle(http.MethodPost+" /config.json", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 				_, password, ok := r.BasicAuth()
 				if !ok {
@@ -103,7 +100,13 @@ func main() {
 				}
 			}))
 
+			options = "OPTIONS, GET, HEAD, POST"
 		}
+
+		http.Handle(http.MethodOptions+" /config.json", http.HandlerFunc(func(w http.ResponseWriter, _ *http.Request) {
+			w.Header().Set("Allow", options)
+			w.WriteHeader(http.StatusNoContent)
+		}))
 	}
 
 	http.Handle("/", httpgzip.FileServer(http.FS(tsserver.WrapFS(os.DirFS("./src")))))
