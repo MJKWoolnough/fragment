@@ -420,6 +420,8 @@ if (hash === "CONFIG") {
 			config: TypeGuardOf<typeof optTG>;
 		}
 
+		let labelID = 0;
+
 		const hasPost = !!xh?.getResponseHeader("Allow")?.split(/, */).includes("POST"),
 		      addHTMLParam = (param = "") => {
 			const pi = {
@@ -459,10 +461,12 @@ if (hash === "CONFIG") {
 
 			config.markdownHTML = markdownHTML as any as [string, ...string[]][];
 
+			labelID++;
+
 			return fieldset([
 				legend("name" in config ? `Key: ${config.name}` : "Base Config"),
-				label({"for": "embed"}, "Embed Content"),
-				input({"id": "embed", "type": "checkbox", "checked": config.embed, "onclick": function(this: HTMLInputElement) {
+				label({"for": "embed_"+labelID}, "Embed Content"),
+				input({"id": "embed_"+labelID, "type": "checkbox", "checked": config.embed, "onclick": function(this: HTMLInputElement) {
 					config.embed = this.checked;
 				}}),
 				br(),
