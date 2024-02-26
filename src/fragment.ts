@@ -5,7 +5,7 @@ import {all as allBBCodeTags} from './lib/bbcode_tags.js';
 import {HTTPRequest} from './lib/conn.js';
 import {add} from './lib/css.js';
 import {amendNode} from './lib/dom.js';
-import {a, body, br, button, fieldset, head, html, img, input, label, legend, li, pre, script, title, ul} from './lib/html.js';
+import {a, body, br, button, div, fieldset, head, html, img, input, label, legend, li, pre, script, title, ul} from './lib/html.js';
 import pageLoad from './lib/load.js';
 import parseMarkdown from './lib/markdown.js';
 import {text2DOM} from './lib/misc.js';
@@ -415,6 +415,11 @@ if (hash === "CONFIG") {
 			param: string;
 		}
 
+		type KeyItem = {
+			[node]: HTMLFieldSetElement;
+			config: TypeGuardOf<typeof optTG>;
+		}
+
 		const hasPost = !!xh?.getResponseHeader("Allow")?.split(/, */).includes("POST"),
 		      addHTMLParam = (param = "") => {
 			const pi = {
@@ -477,7 +482,15 @@ if (hash === "CONFIG") {
 					}
 				}}, "+"),
 			      ]);
-		      };
+		      },
+		      keys = new NodeMap<string, KeyItem>(div());
+
+		for (const key of config.keys) {
+			keys.set(key.name, {
+				[node]: createConfigOptions(key),
+				config: key
+			});
+		}
 
 		amendNode(document.head, add({
 			"label:after": {
@@ -499,7 +512,7 @@ if (hash === "CONFIG") {
 
 		amendNode(document.body, [
 			createConfigOptions(config),
-			br(),
+			keys[node],
 			hasPost ? [
 				label({"for": "password"}, "Password for Saving"),
 				password,
