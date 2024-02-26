@@ -457,7 +457,9 @@ if (hash === "CONFIG") {
 				markdownHTML.set(tag, addMarkdownHTMLItem(markdownHTML, tag, ...params));
 			}
 
-			(markdownHTML as any).toJSON = () => Array.from(markdownHTML.values()).map(v => [v.tag, ...v.params.map(p => p.param)]);
+			Object.assign(markdownHTML, {
+				"toJSON": () => Array.from(markdownHTML.values()).map(v => [v.tag, ...v.params.map(p => p.param)])
+			});
 
 			config.markdownHTML = markdownHTML as any as [string, ...string[]][];
 
