@@ -496,6 +496,8 @@ if (hash === "CONFIG") {
 			"toJSON": () => Array.from(keys.values())
 		});
 
+		config.keys = keys as any as TypeGuardOf<typeof configTG>["keys"];
+
 		amendNode(document.head, add({
 			"label:after": {
 				"content": `":"`
