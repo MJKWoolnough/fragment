@@ -492,6 +492,10 @@ if (hash === "CONFIG") {
 			});
 		}
 
+		Object.assign(keys, {
+			"toJSON": () => Array.from(keys.values())
+		});
+
 		amendNode(document.head, add({
 			"label:after": {
 				"content": `":"`
