@@ -15,8 +15,8 @@ import (
 )
 
 type Options struct {
-	MarkdownHTML *[][]string `json:"markdownHTML"`
-	Embed        *bool       `json:"embed,omitempty"`
+	MarkdownHTML json.RawMessage `json:"markdownHTML"`
+	Embed        json.RawMessage `json:"embed,omitempty"`
 }
 
 type Config struct {
