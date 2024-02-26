@@ -499,7 +499,7 @@ if (hash === "CONFIG") {
 		}
 
 		Object.assign(keys, {
-			"toJSON": () => Array.from(keys.values())
+			"toJSON": () => Array.from(keys.values()).map(v => v.config)
 		});
 
 		config.keys = keys as any as TypeGuardOf<typeof configTG>["keys"];
