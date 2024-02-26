@@ -466,7 +466,10 @@ if (hash === "CONFIG") {
 			labelID++;
 
 			return fieldset([
-				legend("name" in config ? `Key: ${config.name}` : "Base Config"),
+				legend("name" in config ? [
+					`Key: ${config.name}`,
+					button({"onclick": () => keys.delete(config.name as string)}, "X")
+				]: "Base Config"),
 				label({"for": "embed_"+labelID}, "Embed Content"),
 				input({"id": "embed_"+labelID, "type": "checkbox", "checked": config.embed, "onclick": function(this: HTMLInputElement) {
 					config.embed = this.checked;
