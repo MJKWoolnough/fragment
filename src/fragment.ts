@@ -451,15 +451,13 @@ if (hash === "CONFIG") {
 		      password = input({"type": "password", "id": "password"}),
 		      getConfigJSON = () => JSON.stringify(config),
 		      createConfigOptions = (config: TypeGuardOf<typeof optTG>) => {
-			const markdownHTML = new NodeMap<string, TagItem>(ul());
+			const markdownHTML = Object.assign( new NodeMap<string, TagItem>(ul()), {
+				"toJSON": () => Array.from(markdownHTML.values()).map(v => [v.tag, ...v.params.map(p => p.param)])
+			      });
 
 			for (const [tag, ...params] of config.markdownHTML ?? []) {
 				markdownHTML.set(tag, addMarkdownHTMLItem(markdownHTML, tag, ...params));
 			}
-
-			Object.assign(markdownHTML, {
-				"toJSON": () => Array.from(markdownHTML.values()).map(v => [v.tag, ...v.params.map(p => p.param)])
-			});
 
 			config.markdownHTML = markdownHTML as any as [string, ...string[]][];
 
@@ -492,7 +490,9 @@ if (hash === "CONFIG") {
 				}}, "+")
 			      ]);
 		      },
-		      keys = new NodeMap<string, KeyItem>(div());
+		      keys = Object.assign(new NodeMap<string, KeyItem>(div()), {
+			"toJSON": () => Array.from(keys.values()).map(v => v.config)
+		      });
 
 		for (const key of config.keys) {
 			keys.set(key.name, {
@@ -501,9 +501,6 @@ if (hash === "CONFIG") {
 			});
 		}
 
-		Object.assign(keys, {
-			"toJSON": () => Array.from(keys.values()).map(v => v.config)
-		});
 
 		config.keys = keys as any as TypeGuardOf<typeof configTG>["keys"];
 
