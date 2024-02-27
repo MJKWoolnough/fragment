@@ -433,12 +433,12 @@ if (hash === "CONFIG") {
 
 			return pi;
 		      },
-		      addMarkdownHTMLItem = (markdownHTML: Map<string, TagItem>, tag: string, ...params: string[]) => {
+		      addMarkdownHTMLItem = (removeFn: () => void, tag: string, ...params: string[]) => {
 			const paramsList = new NodeArray<ParamItem>(ul(), noSort, params.map(addHTMLParam));
 
 			return {
 				[node]: li([
-					button({"onclick": () => markdownHTML.delete(tag)}, "X"),
+					button({"onclick": removeFn}, "X"),
 					label(tag),
 					paramsList[node],
 					button({"onclick": () => paramsList.push(addHTMLParam())}, "+"),
@@ -456,7 +456,7 @@ if (hash === "CONFIG") {
 			      });
 
 			for (const [tag, ...params] of config.markdownHTML ?? []) {
-				markdownHTML.set(tag, addMarkdownHTMLItem(markdownHTML, tag, ...params));
+				markdownHTML.set(tag, addMarkdownHTMLItem(() => markdownHTML.delete(tag), tag, ...params));
 			}
 
 			config.markdownHTML = markdownHTML as any as [string, ...string[]][];
@@ -485,7 +485,7 @@ if (hash === "CONFIG") {
 							return;
 						}
 
-						markdownHTML.set(tag, addMarkdownHTMLItem(markdownHTML, tag));
+						markdownHTML.set(tag, addMarkdownHTMLItem(() => markdownHTML.delete(tag), tag));
 					}
 				}}, "+")
 			      ]);
