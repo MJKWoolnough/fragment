@@ -9,7 +9,7 @@ import {a, body, br, button, div, fieldset, head, html, img, input, label, legen
 import pageLoad from './lib/load.js';
 import parseMarkdown from './lib/markdown.js';
 import {text2DOM} from './lib/misc.js';
-import {NodeArray, NodeMap, node, noSort} from './lib/nodes.js';
+import {NodeArray, NodeMap, node, noSort, stringSort} from './lib/nodes.js';
 import parser, {processToEnd} from './lib/parser.js';
 import {And, Arr, Bool, Null, Obj, Or, Part, Str, Tuple, Val} from './lib/typeguard.js';
 
@@ -417,7 +417,7 @@ if (hash === "CONFIG") {
 
 		type KeyItem = {
 			[node]: HTMLFieldSetElement;
-			config: TypeGuardOf<typeof optTG>;
+			config: TypeGuardOf<typeof optTG> & {name: string};
 		}
 
 		let labelID = 0;
@@ -490,7 +490,7 @@ if (hash === "CONFIG") {
 				}}, "+")
 			      ]);
 		      },
-		      keys = Object.assign(new NodeMap<string, KeyItem>(div(), noSort, config.keys.map(key => [key.name, {
+		      keys = Object.assign(new NodeMap<string, KeyItem>(div(), (a, b) => stringSort(a.config.name, b.config.name), config.keys.map(key => [key.name, {
 			      [node]: createConfigOptions(key),
 			      config: key
 		      }])), {
