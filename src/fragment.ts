@@ -451,13 +451,9 @@ if (hash === "CONFIG") {
 		      password = input({"type": "password", "id": "password"}),
 		      getConfigJSON = () => JSON.stringify(config),
 		      createConfigOptions = (config: TypeGuardOf<typeof optTG>) => {
-			const markdownHTML = Object.assign(new NodeMap<string, TagItem>(ul(), (a, b) => stringSort(a.tag, b.tag)), {
+			const markdownHTML: NodeMap<string, TagItem> = Object.assign(new NodeMap<string, TagItem>(ul(), (a, b) => stringSort(a.tag, b.tag), (config.markdownHTML ?? []).map(([tag, ...params]) => [tag, addMarkdownHTMLItem(() => markdownHTML.delete(tag), tag, ...params)])), {
 				"toJSON": () => Array.from(markdownHTML.values()).map(v => [v.tag, ...v.params.map(p => p.param)])
 			      });
-
-			for (const [tag, ...params] of config.markdownHTML ?? []) {
-				markdownHTML.set(tag, addMarkdownHTMLItem(() => markdownHTML.delete(tag), tag, ...params));
-			}
 
 			config.markdownHTML = markdownHTML as any as [string, ...string[]][];
 
