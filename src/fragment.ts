@@ -490,17 +490,12 @@ if (hash === "CONFIG") {
 				}}, "+")
 			      ]);
 		      },
-		      keys = Object.assign(new NodeMap<string, KeyItem>(div()), {
+		      keys = Object.assign(new NodeMap<string, KeyItem>(div(), noSort, config.keys.map(key => [key.name, {
+			      [node]: createConfigOptions(key),
+			      config: key
+		      }])), {
 			"toJSON": () => Array.from(keys.values()).map(v => v.config)
 		      });
-
-		for (const key of config.keys) {
-			keys.set(key.name, {
-				[node]: createConfigOptions(key),
-				config: key
-			});
-		}
-
 
 		config.keys = keys as any as TypeGuardOf<typeof configTG>["keys"];
 
