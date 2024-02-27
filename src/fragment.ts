@@ -547,9 +547,9 @@ if (hash === "CONFIG") {
 									a.push(c);
 								} else {
 									a[a.length-1] += c;
-						                }
+								}
 
-						                return a;
+								return a;
 							}, [""]).join("\n") + "\n-----END PRIVATE KEY-----"], {"type": "text/plain"}))}).click());
 							window.crypto.subtle.exportKey("jwk", key.publicKey).then(k => {
 								const c = {
