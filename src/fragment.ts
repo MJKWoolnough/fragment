@@ -455,7 +455,7 @@ if (hash === "CONFIG") {
 				"toJSON": () => Array.from(markdownHTML.values()).map(v => [v.tag, ...v.params.map(p => p.param)])
 			      });
 
-			config.markdownHTML = markdownHTML as any as [string, ...string[]][];
+			config.markdownHTML = markdownHTML as any;
 
 			labelID++;
 
@@ -493,7 +493,7 @@ if (hash === "CONFIG") {
 			"toJSON": () => Array.from(keys.values()).map(v => v.config)
 		      });
 
-		config.keys = keys as any as TypeGuardOf<typeof configTG>["keys"];
+		config.keys = keys as any;
 
 		amendNode(document.head, add({
 			"label:after": {
