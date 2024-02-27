@@ -442,7 +442,7 @@ if (hash === "CONFIG") {
 					label(tag),
 					paramsList[node],
 					button({"onclick": () => paramsList.push(addHTMLParam())}, "+"),
-					button({"onclick": () => paramsList.pop()}, "-"),
+					button({"onclick": () => paramsList.pop()}, "-")
 				]),
 				tag: tag,
 				params: paramsList
@@ -489,7 +489,7 @@ if (hash === "CONFIG") {
 
 						markdownHTML.set(tag, addMarkdownHTMLItem(markdownHTML, tag));
 					}
-				}}, "+"),
+				}}, "+")
 			      ]);
 		      },
 		      keys = new NodeMap<string, KeyItem>(div());
@@ -519,7 +519,7 @@ if (hash === "CONFIG") {
 					"padding": 0,
 
 					">li": {
-						"display": "inline-block",
+						"display": "inline-block"
 					}
 				}
 			}
@@ -582,7 +582,7 @@ if (hash === "CONFIG") {
 					.then(() => alert("Saved"))
 					.catch(alert);
 				}}, "Save"),
-				br(),
+				br()
 			] : [],
 			button({"onclick": () => prompt("Copy this to your config file:", getConfigJSON())}, "Export Config")
 		]);
