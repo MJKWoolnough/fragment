@@ -50,7 +50,8 @@ const hash = window.location.hash.slice(1),
 
 	type DOMBind<T extends Element> = (child?: Children, params?: Record<string, string | Function>) => T;
 
-	const titles = firstRowIsTitle ? data.shift() ?? [] : [],
+	const max = Math.max(...data.map(r => r.length)),
+	      titles = firstRowIsTitle ? data.shift() ?? [] : [],
 	      appendChildren = (elem: Element, child: Children) => {
 		if (child instanceof Array) {
 			for (const c of child) {
@@ -80,7 +81,6 @@ const hash = window.location.hash.slice(1),
 		return elem;
 	      },
 	      [a, button, input, label, li, table, tbody, td, th, thead, tr, ul] = "a button input label li table tbody td th thead tr ul".split(" ").map(e => (child?: Children, params?: Record<string, string | Function>) => amendNode(document.createElement(e), child, params)) as [DOMBind<HTMLElementTagNameMap["a"]>, DOMBind<HTMLElementTagNameMap["button"]>, DOMBind<HTMLElementTagNameMap["input"]>, DOMBind<HTMLElementTagNameMap["label"]>, DOMBind<HTMLElementTagNameMap["li"]>, DOMBind<HTMLElementTagNameMap["table"]>, DOMBind<HTMLElementTagNameMap["tbody"]>, DOMBind<HTMLElementTagNameMap["td"]>, DOMBind<HTMLElementTagNameMap["th"]>, DOMBind<HTMLElementTagNameMap["thead"]>, DOMBind<HTMLElementTagNameMap["tr"]>, DOMBind<HTMLElementTagNameMap["ul"]>],
-	      max = Math.max(...data.map(r => r.length)),
 	      colName = (n: number): string => {
 		if (n < 26) {
 			return String.fromCharCode(64 + (n || 26));
