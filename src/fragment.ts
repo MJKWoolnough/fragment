@@ -94,7 +94,7 @@ const hash = window.location.hash.slice(1),
 	      stringSort = new Intl.Collator().compare,
 	      numberSort = (a: string, b: string) => parseFloat(a || "-Infinity") - parseFloat(b || "-Infinity"),
 	      sorters = Array.from({"length": max}, (_, n) => data.every(row => row.length < n || !isNaN(parseFloat(row[n] || "0"))) ? numberSort : stringSort),
-	      dataMap = new Map<HTMLTableRowElement, string[]>(),
+	      dataMap = new Map<Element, string[]>(),
 	      tbodyElement = tbody(data.map(row => {
 		const rowElm = tr(row.map(cell => td(cell)).concat(Array.from({"length": max - row.length}, _ => td())));
 
@@ -249,7 +249,7 @@ const hash = window.location.hash.slice(1),
 		input("", {"id": "C", "type": "radio", "checked": "", "name":"E", "onclick": () => exportChar = ","}),
 		label("TSV", {"for": "T"}),
 		input("", {"id": "T", "type": "radio", "name":"E", "onclick": () => exportChar = "\t"}),
-		button("Export Table", {"onclick": () => a("", {"href": URL.createObjectURL(new Blob([(titles.length ? encodeRow(titles) + "\n" : "") + (Array.from(tbodyElement.children) as HTMLTableRowElement[]).filter(e => dataMap.has(e)).map(row => encodeRow(dataMap.get(row)!)).join("\n")], {"type": "text/csv;charset=utf-8"})), "download": "table.csv"}).click()})
+		button("Export Table", {"onclick": () => a("", {"href": URL.createObjectURL(new Blob([(titles.length ? encodeRow(titles) + "\n" : "") + Array.from(tbodyElement.children).filter(e => dataMap.has(e)).map(row => encodeRow(dataMap.get(row)!)).join("\n")], {"type": "text/csv;charset=utf-8"})), "download": "table.csv"}).click()})
 	]);
       },
       sm = "\"",
