@@ -203,7 +203,8 @@ const hash = window.location.hash.slice(1),
 		filterLists.set(n, f);
 
 		return f;
-	      };
+	      },
+	      encodeRow = (row: string[]) => row.map(cell => `"${cell.replaceAll('"', '""')}"`).join(exportChar);
 
 	let sorted = -1,
 	    exportChar = ",";
@@ -248,7 +249,7 @@ const hash = window.location.hash.slice(1),
 		input("", {"id": "C", "type": "radio", "checked": "", "name":"E", "onclick": () => exportChar = ","}),
 		label("TSV", {"for": "T"}),
 		input("", {"id": "T", "type": "radio", "name":"E", "onclick": () => exportChar = "\t"}),
-		button("Export Table", {"onclick": () => a("", {"href": URL.createObjectURL(new Blob([(titles.length ? titles.map(title => `"${title.replaceAll('"', '""')}"`).join(exportChar) + "\n" : "") + (Array.from(tbodyElement.children) as HTMLTableRowElement[]).filter(e => dataMap.has(e)).map(row => dataMap.get(row)!.map(cell => `"${cell.replaceAll('"', '""')}"`).join(exportChar)).join("\n")], {"type": "text/csv;charset=utf-8"})), "download": "table.csv"}).click()})
+		button("Export Table", {"onclick": () => a("", {"href": URL.createObjectURL(new Blob([(titles.length ? encodeRow(titles) + "\n" : "") + (Array.from(tbodyElement.children) as HTMLTableRowElement[]).filter(e => dataMap.has(e)).map(row => encodeRow(dataMap.get(row)!)).join("\n")], {"type": "text/csv;charset=utf-8"})), "download": "table.csv"}).click()})
 	]);
       },
       sm = "\"",
