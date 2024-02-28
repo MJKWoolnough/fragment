@@ -11,7 +11,7 @@ declare set=( false false false false );
 
 printHelp() {
 	cat <<HEREDOC
-Usage: $0 [-m MODE] [-s SOURCE] [-k KEY [-h HASH]]
+Usage: $0 [-t Type] [-s SOURCE] [-k KEY [-h HASH]]
 
 -t, --type   File type. Currently supported: m (Markdown), b (BBCode), p (Plain Text), h (HTML), s (SVG), c (CSV), t (TSV).
 -s, --source Source file to create fragment from. (default: stdin)
