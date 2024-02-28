@@ -436,7 +436,9 @@ if (hash === "CONFIG") {
 			return pi;
 		      },
 		      addMarkdownHTMLItem = (removeFn: () => void, tag: string, ...params: string[]) => {
-			const paramsList = new NodeArray<ParamItem>(ul(), noSort, params.map(addHTMLParam));
+			const paramsList = new NodeArray<ParamItem>(ul(), (a, b) => stringSort(a.param, b.param), params.map(addHTMLParam));
+
+			paramsList.sort(noSort);
 
 			return {
 				[node]: li([
