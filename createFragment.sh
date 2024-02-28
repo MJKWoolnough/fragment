@@ -12,12 +12,13 @@ declare set=( false false false false false );
 
 printHelp() {
 	cat <<HEREDOC
-Usage: $0 [-t Type] [-s SOURCE] [-k KEY [-h HASH]]
+Usage: $0 [-t Type] [-f] [-s SOURCE] [-k KEY [-h HASH]]
 
--t, --type   File type. Currently supported: m (Markdown), b (BBCode), p (Plain Text), h (HTML), s (SVG), c (CSV), t (TSV).
--s, --source Source file to create fragment from. (default: stdin)
--k, --key    Private key with which to sign the fragment. (default: NONE)
--h, --hash   Hash size to use when signing digest: sha256, sha384, sha512. (default: sha256)
+-t, --type             File type. Currently supported: m (Markdown), b (BBCode), p (Plain Text), h (HTML), s (SVG), c (CSV), t (TSV).
+-f, --first-row-titles Indicated that the first row of a CSV or TSV file contains column titles.
+-s, --source           Source file to create fragment from. (default: stdin)
+-k, --key              Private key with which to sign the fragment. (default: NONE)
+-h, --hash             Hash size to use when signing digest: sha256, sha384, sha512. (default: sha256)
 HEREDOC
 }
 
