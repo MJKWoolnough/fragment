@@ -610,7 +610,9 @@ if (hash === "CONFIG") {
 		case 'M':
 		case 'B':
 		case 'C':
+		case 'D':
 		case 'T':
+		case 'U':
 			if (!window.isSecureContext) {
 				return Promise.reject("Cannot handle signed data in insecure mode");
 			}
@@ -650,8 +652,12 @@ if (hash === "CONFIG") {
 			return processToHTML(contents, data => parseBBCode(allBBCodeTags, data));
 		case 'c':
 			return parseTable(contents, ",");
+		case 'd':
+			return parseTable(contents, ",", true);
 		case 't':
 			return parseTable(contents, "\t");
+		case 'u':
+			return parseTable(contents, "\t", true);
 		}
 
 		return Promise.reject("Unknown content type");
