@@ -45,12 +45,13 @@ const hash = window.location.hash.slice(1),
 		withMime(htmlDoctype + htmlElement.outerHTML, "text/html");
 	}
       },
-      makeTable = (data: string[][]) => {
+      makeTable = (data: string[][], firstRowIsTitle: boolean) => {
 	type Children = string | Element | Children[];
 
 	type DOMBind<T extends Element> = (child?: Children, params?: Record<string, string | Function>) => T;
 
-	const appendChildren = (elem: Element, child: Children) => {
+	const titles = firstRowIsTitle ? data.shift() ?? [] : [],
+	      appendChildren = (elem: Element, child: Children) => {
 		if (child instanceof Array) {
 			for (const c of child) {
 				appendChildren(elem, c);
@@ -219,7 +220,7 @@ const hash = window.location.hash.slice(1),
 			amendNode(tbodyElement, Array.from(dataMap.keys()).map(row => amendNode(row, [], {"class": ""})));
 		}}),
 		table([
-			thead(Array.from({"length": max}, (_, n) => th(colName(n + 1), {"onclick": function (this: Element) {
+			thead(Array.from({"length": max}, (_, n) => th(titles[n] ?? colName(n + 1), {"onclick": function (this: Element) {
 				const classes = this.classList;
 
 				document.body.classList.toggle("b", true);
@@ -251,7 +252,7 @@ const hash = window.location.hash.slice(1),
 	]);
       },
       sm = "\"",
-      parseTable = (contents: Uint8Array, delim: string) => {
+      parseTable = (contents: Uint8Array, delim: string, firstRowIsTitle = false) => {
 	const tokenCell = 1,
 	      tokenNL = 2,
 	      tokenRow = 3,
@@ -358,7 +359,7 @@ const hash = window.location.hash.slice(1),
 				}
 			}).render(),
 			favicon(),
-			script({"type": "module"}, `(${makeTable.toString()})(${JSON.stringify(Array.from(processToEnd(parser(decodeText(contents).trimEnd(), parseCell, parseRow))).map(row => row.data.filter(cell => cell.type !== tokenNL).map(cell => cell.data[0] === sm ? cell.data.slice(1, -1).replace(sm+sm, sm)  : cell.data)))})`)
+			script({"type": "module"}, `(${makeTable.toString()})(${JSON.stringify(Array.from(processToEnd(parser(decodeText(contents).trimEnd(), parseCell, parseRow))).map(row => row.data.filter(cell => cell.type !== tokenNL).map(cell => cell.data[0] === sm ? cell.data.slice(1, -1).replace(sm+sm, sm)  : cell.data)))}, ${firstRowIsTitle})`)
 		]),
 		body(config.embed ? [] : [
 			a({"href": window.location + ""}, "Link to this Table"),
