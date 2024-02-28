@@ -6,8 +6,9 @@ declare src="-";
 declare type="p";
 declare key="";
 declare hash="sha256";
+declare firstRowTitles="false";
 
-declare set=( false false false false );
+declare set=( false false false false false );
 
 printHelp() {
 	cat <<HEREDOC
@@ -78,6 +79,10 @@ while [ $# -gt 0 ]; do
 		esac;
 
 		shift;;
+	"-f"|"--first-row-titles")
+		optionSet 4;
+
+		firstRowTitles="true";;
 	*)
 		printHelp;
 
@@ -86,6 +91,18 @@ while [ $# -gt 0 ]; do
 
 	shift;
 done;
+
+if $firstRowTitles; then
+	case "$type" in
+	"c")
+		type="d";;
+	"t")
+		type="u";;
+	*)
+		echo "Can only use --first-row-titles with --type c or t.";
+		printHelp;;
+	esac;
+fi;
 
 if [ -n "$key" ]; then
 	type="$(echo "$type" | tr a-z A-Z)"
