@@ -454,7 +454,7 @@ if (hash === "CONFIG") {
 		      getConfigJSON = () => JSON.stringify(config),
 		      createConfigOptions = (config: TypeGuardOf<typeof optTG>) => {
 			const markdownHTML: NodeMap<string, TagItem> = Object.assign(new NodeMap<string, TagItem>(ul(), (a, b) => stringSort(a.tag, b.tag), (config.markdownHTML ?? []).map(([tag, ...params]) => [tag, addMarkdownHTMLItem(() => markdownHTML.delete(tag), tag, ...params)])), {
-				"toJSON": () => Array.from(markdownHTML.values()).map(v => [v.tag, ...v.params.map(p => p.param)])
+				"toJSON": () => Array.from(markdownHTML.values()).map(v => [v.tag, ...(new Set<string>(v.params.map(p => p.param)))])
 			      });
 
 			config.markdownHTML = markdownHTML as any;
