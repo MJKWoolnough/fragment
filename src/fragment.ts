@@ -640,9 +640,8 @@ if (hash === "CONFIG") {
 		case 'h':
 			return processToHTML(contents, text2DOM);
 		case 'm':
-			return processToHTML(contents, data => parseMarkdown(data, {"allowedHTML": config.markdownHTML as [keyof HTMLElementTagNameMap, ...string[]][] | null ?? null}));
 		case 'b':
-			return processToHTML(contents, data => parseBBCode(allBBCodeTags, data));
+			return processToHTML(contents, firstChar === 'm' ? data => parseMarkdown(data, {"allowedHTML": config.markdownHTML as [keyof HTMLElementTagNameMap, ...string[]][] | null ?? null}) : data => parseBBCode(allBBCodeTags, data));
 		case 'c':
 		case 'd':
 			return parseTable(contents, ",", firstChar === 'd');
