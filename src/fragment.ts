@@ -479,11 +479,9 @@ if (hash === "CONFIG") {
 					if (tag) {
 						if (markdownHTML.has(tag)) {
 							alert("Tag already exists");
-
-							return;
+						} else {
+							markdownHTML.set(tag, addMarkdownHTMLItem(() => markdownHTML.delete(tag), tag));
 						}
-
-						markdownHTML.set(tag, addMarkdownHTMLItem(() => markdownHTML.delete(tag), tag));
 					}
 				}}, "+")
 			      ]);
