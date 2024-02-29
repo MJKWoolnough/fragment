@@ -551,7 +551,6 @@ if (hash === "CONFIG") {
 									[node]: createConfigOptions(c),
 									"config": c
 								});
-
 							});
 						});
 					}
