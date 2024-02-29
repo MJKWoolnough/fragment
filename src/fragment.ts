@@ -629,9 +629,10 @@ if (hash === "CONFIG") {
 			return Promise.reject("No Data");
 		}
 
-		const contents = data.slice(1);
+		const contents = data.slice(1),
+		      firstChar = String.fromCharCode(data[0]).toLowerCase();
 
-		switch (String.fromCharCode(data[0]).toLowerCase()) {
+		switch (firstChar) {
 		case 'p':
 			return config.embed ? amendNode(document.body, pre(decodeText(data as Uint8Array))) : withMime(contents, "text/plain");
 		case 's':
@@ -643,13 +644,11 @@ if (hash === "CONFIG") {
 		case 'b':
 			return processToHTML(contents, data => parseBBCode(allBBCodeTags, data));
 		case 'c':
-			return parseTable(contents, ",");
 		case 'd':
-			return parseTable(contents, ",", true);
+			return parseTable(contents, ",", firstChar === 'd');
 		case 't':
-			return parseTable(contents, "\t");
 		case 'u':
-			return parseTable(contents, "\t", true);
+			return parseTable(contents, "\t", firstChar === 'u');
 		}
 
 		return Promise.reject("Unknown content type");
