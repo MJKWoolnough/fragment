@@ -578,25 +578,19 @@ if (hash === "CONFIG") {
 	pageLoad.then(() => hash ? fetch("data:application/octet-stream;base64," + hash) : Promise.reject("No Fragment"))
 	.then(data => data.blob())
 	.then(b => b.stream().pipeThrough<Uint8Array>(new DecompressionStream("deflate-raw")).getReader())
-	.then(reader => {
+	.then(async reader => {
 		let data = new Uint8Array(0);
 
-		const appendText = ({done, value}: ReadableStreamReadResult<Uint8Array>): Uint8Array | Promise<Uint8Array> => {
-			if (done) {
-				return data;
-			}
-
-			const newData = new Uint8Array(data.length + value.length);
+		for (let {done, value} = await reader.read(); !done; {done, value} = await reader.read()) {
+			const newData = new Uint8Array(data.length + value!.length);
 
 			newData.set(data);
-			newData.set(value, data.length);
+			newData.set(value!, data.length);
 
 			data = newData;
+		}
 
-			return reader.read().then(appendText);
-		      };
-
-		return reader.read().then(appendText);
+		return data;
 	})
 	.then(data => {
 		const c = loadConfig().then(c => Object.assign(config, c));
