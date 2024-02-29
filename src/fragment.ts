@@ -17,7 +17,7 @@ const hash = window.location.hash.slice(1),
       titleText = document.title,
       withMime = (data: BlobPart, mime: string) => window.location.href = URL.createObjectURL(new Blob([data], {"type": mime})),
       htmlDoctype = "<!DOCTYPE html>\n",
-      decodeText = (data: Uint8Array) => (new TextDecoder()).decode(data),
+      decodeText = (data: Uint8Array) => new TextDecoder().decode(data),
       favicon = () => document.getElementsByTagName("link")[0]!.cloneNode(),
       processToHTML = (data: Uint8Array, fn: (contents: string) => DocumentFragment) => {
 	const dom = fn(decodeText(data)),
