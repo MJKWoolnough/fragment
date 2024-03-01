@@ -520,6 +520,9 @@ if (hash === "CONFIG") {
 						"display": "inline-block"
 					}
 				}
+			},
+			"ul:not(:empty) ~ div": {
+				"display": "none"
 			}
 		}).render());
 
