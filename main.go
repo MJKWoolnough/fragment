@@ -15,7 +15,7 @@ import (
 )
 
 type Options struct {
-	MarkdownHTML json.RawMessage `json:"markdownHTML"`
+	MarkdownHTML json.RawMessage `json:"markdownHTML,omitempty"`
 	Embed        json.RawMessage `json:"embed,omitempty"`
 }
 
