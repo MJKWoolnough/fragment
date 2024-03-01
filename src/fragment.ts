@@ -495,7 +495,7 @@ if (hash === "CONFIG") {
 					label({"for": "all_"+labelID}, "Allow all HTML elements"),
 					input({"type": "radio", "id": "all_"+labelID, "name": "markdown_"+labelID, "checked": config.markdownHTML === null, "onclick": () => config.markdownHTML = null}),
 					br(),
-					label({"for": "safe_"+labelID}, "Allow safe HTML elements"),
+					label({"for": "safe_"+labelID}, "name" in config ? "Use Base Config Setting" : "Allow safe HTML elements"),
 					input({"type": "radio", "id": "safe_"+labelID, "name": "markdown_"+labelID, "checked": config.markdownHTML === undefined, "onclick": () => delete config.markdownHTML})
 				])
 			      ]);
