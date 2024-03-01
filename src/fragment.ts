@@ -440,11 +440,11 @@ if (hash === "CONFIG") {
 
 			return {
 				[node]: li([
-					button({"onclick": removeFn}, "X"),
+					button({"title": "Remove this Markdown HTML Element", "onclick": removeFn}, "X"),
 					label(tag),
 					paramsList[node],
-					button({"onclick": () => paramsList.push(addHTMLParam())}, "+"),
-					button({"onclick": () => paramsList.pop()}, "-")
+					button({"title": "Add HTML Attribute", "onclick": () => paramsList.push(addHTMLParam())}, "+"),
+					button({"title": "Remove Last HTML Attribute", "onclick": () => paramsList.pop()}, "-")
 				]),
 				tag: tag,
 				params: paramsList
@@ -464,7 +464,7 @@ if (hash === "CONFIG") {
 			return fieldset([
 				legend("name" in config ? [
 					`Key: ${config.name}`,
-					button({"onclick": () => keys.delete(config.name as string)}, "X")
+					button({"title": "Remove this Key", "onclick": () => keys.delete(config.name as string)}, "X")
 				]: "Base Config"),
 				label({"for": "embed_"+labelID}, "Embed Content"),
 				input({"id": "embed_"+labelID, "type": "checkbox", "checked": config.embed, "onclick": function(this: HTMLInputElement) {
@@ -473,7 +473,7 @@ if (hash === "CONFIG") {
 				br(),
 				label("Allowed Markdown HTML Tags"),
 				markdownHTML[node],
-				button({"onclick": () => {
+				button({"title": "Add Allowed Markdown HTML Element", "onclick": () => {
 					const tag = prompt("Enter HTML Tag name");
 
 					if (tag) {
