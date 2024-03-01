@@ -453,13 +453,15 @@ if (hash === "CONFIG") {
 		      password = input({"type": "password", "id": "password"}),
 		      getConfigJSON = () => JSON.stringify(config),
 		      createConfigOptions = (config: TypeGuardOf<typeof optTG>) => {
+			labelID++;
+
 			const markdownHTML: NodeMap<string, TagItem> = Object.assign(new NodeMap<string, TagItem>(ul(), (a, b) => stringSort(a.tag, b.tag), (config.markdownHTML ?? []).map(([tag, ...params]) => [tag, addMarkdownHTMLItem(() => markdownHTML.delete(tag), tag, ...params)])), {
 				"toJSON": () => Array.from(markdownHTML.values()).map(v => [v.tag, ...(new Set<string>(v.params.map(p => p.param).filter(p => p)))])
-			      });
+			      }),
+			      defaultEmpty = input({"type": "radio", "id": "empty_"+labelID, "name": "markdown_"+labelID, "onclick": () => config.markdownHTML = markdownHTML as any});
 
 			config.markdownHTML = markdownHTML as any;
 
-			labelID++;
 
 			return fieldset([
 				legend("name" in config ? [
@@ -480,14 +482,14 @@ if (hash === "CONFIG") {
 						if (markdownHTML.has(tag)) {
 							alert("Tag already exists");
 						} else {
-							config.markdownHTML = markdownHTML as any;
+							defaultEmpty.click();
 							markdownHTML.set(tag, addMarkdownHTMLItem(() => markdownHTML.delete(tag), tag));
 						}
 					}
 				}}, "+"),
 				div([
 					label({"for": "empty_"+labelID}, "Allow no HTML elements"),
-					input({"type": "radio", "id": "empty_"+labelID, "name": "markdown_"+labelID, "onclick": () => config.markdownHTML = markdownHTML as any}),
+					defaultEmpty,
 					br(),
 					label({"for": "all_"+labelID}, "Allow all HTML elements"),
 					input({"type": "radio", "id": "all_"+labelID, "name": "markdown_"+labelID, "onclick": () => config.markdownHTML = null}),
