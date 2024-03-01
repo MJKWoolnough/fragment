@@ -5,7 +5,7 @@ import {all as allBBCodeTags} from './lib/bbcode_tags.js';
 import {HTTPRequest} from './lib/conn.js';
 import {add} from './lib/css.js';
 import {amendNode} from './lib/dom.js';
-import {a, body, br, button, div, fieldset, head, html, img, input, label, legend, li, pre, script, title, ul} from './lib/html.js';
+import {a, body, br, button, div, fieldset, h1, head, html, img, input, label, legend, li, pre, script, title, ul} from './lib/html.js';
 import pageLoad from './lib/load.js';
 import parseMarkdown from './lib/markdown.js';
 import {text2DOM} from './lib/misc.js';
@@ -514,6 +514,7 @@ if (hash === "CONFIG") {
 		}).render());
 
 		amendNode(document.body, [
+			h1("Fragment"),
 			createConfigOptions(config),
 			keys[node],
 			button({"onclick": () => {
