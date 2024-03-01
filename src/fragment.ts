@@ -483,7 +483,17 @@ if (hash === "CONFIG") {
 							markdownHTML.set(tag, addMarkdownHTMLItem(() => markdownHTML.delete(tag), tag));
 						}
 					}
-				}}, "+")
+				}}, "+"),
+				div([
+					label({"for": "empty_"+labelID}, "Allow no HTML element"),
+					input({"type": "radio", "id": "empty_"+labelID, "name": "markdown_"+labelID}),
+					br(),
+					label({"for": "all_"+labelID}, "Allow all HTML elements"),
+					input({"type": "radio", "id": "all_"+labelID, "name": "markdown_"+labelID}),
+					br(),
+					label({"for": "safe_"+labelID}, "Allow safe HTML elements"),
+					input({"type": "radio", "id": "safe_"+labelID, "name": "markdown_"+labelID})
+				])
 			      ]);
 		      },
 		      keys = Object.assign(new NodeMap<string, KeyItem>(div(), (a, b) => stringSort(a.config.name, b.config.name), config.keys.map(key => [key.name, {
