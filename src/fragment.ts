@@ -624,6 +624,7 @@ if (hash === "CONFIG") {
 		case 'D':
 		case 'T':
 		case 'U':
+		case 'X':
 			if (!window.isSecureContext) {
 				return Promise.reject("Cannot handle signed data in insecure mode");
 			}
@@ -667,6 +668,8 @@ if (hash === "CONFIG") {
 		case 't':
 		case 'u':
 			return parseTable(contents, "\t", firstChar === 'u');
+		case 'x':
+			return withMime(contents, "application/xml");
 		}
 
 		return Promise.reject("Unknown content type");
