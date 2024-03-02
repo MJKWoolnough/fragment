@@ -600,16 +600,20 @@ if (hash === "CONFIG") {
 	.then(async reader => {
 		let data = new Uint8Array(0);
 
-		for (let {done, value} = await reader.read(); !done; {done, value} = await reader.read()) {
-			const newData = new Uint8Array(data.length + value!.length);
+		while (true) {
+			const {value} = await reader.read();
+
+			if (!value) {
+				return data;
+			}
+
+			const newData = new Uint8Array(data.length + value.length);
 
 			newData.set(data);
 			newData.set(value!, data.length);
 
 			data = newData;
 		}
-
-		return data;
 	})
 	.then(data => {
 		const c = loadConfig().then(c => Object.assign(config, c));
