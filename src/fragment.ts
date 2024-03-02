@@ -610,7 +610,7 @@ if (hash === "CONFIG") {
 			const newData = new Uint8Array(data.length + value.length);
 
 			newData.set(data);
-			newData.set(value!, data.length);
+			newData.set(value, data.length);
 
 			data = newData;
 		}
