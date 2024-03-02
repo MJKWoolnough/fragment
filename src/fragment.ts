@@ -658,7 +658,7 @@ if (hash === "CONFIG") {
 
 		switch (firstChar) {
 		case 'p':
-			return config.embed ? amendNode(document.body, pre(decodeText(data as Uint8Array))) : withMime(contents, "text/plain");
+			return config.embed ? amendNode(document.body, pre(decodeText(data))) : withMime(contents, "text/plain");
 		case 's':
 			return config.embed ? amendNode(document.body, img({"src": URL.createObjectURL(new Blob([data], {"type": "image/svg+xml"}))})) : withMime(contents, "image/svg+xml");
 		case 'h':
