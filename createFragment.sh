@@ -14,7 +14,7 @@ printHelp() {
 	cat <<HEREDOC
 Usage: $0 [-t Type] [-f] [-s SOURCE] [-k KEY [-h HASH]]
 
--t, --type             File type. Currently supported: m (Markdown), b (BBCode), p (Plain Text), h (HTML), s (SVG), c (CSV), t (TSV).
+-t, --type             File type. Currently supported: m (Markdown), b (BBCode), p (Plain Text), h (HTML), s (SVG), c (CSV), t (TSV), x (XML).
 -f, --first-row-titles Indicated that the first row of a CSV or TSV file contains column titles.
 -s, --source           Source file to create fragment from. (default: stdin)
 -k, --key              Private key with which to sign the fragment. (default: NONE)
@@ -41,7 +41,7 @@ while [ $# -gt 0 ]; do
 		type="$(echo "$2" | tr A-Z a-z)";
 
 		case "$type" in
-		"m"|"b"|"p"|"h"|"s"|"c"|"t") ;;
+		"m"|"b"|"p"|"h"|"s"|"c"|"t"|"x");;
 		*)
 			{
 				echo "Invalid type";
