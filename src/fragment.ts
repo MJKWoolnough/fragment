@@ -424,7 +424,7 @@ if (hash === "CONFIG") {
 
 		let labelID = 0;
 
-		const hasPost = !!xh?.getResponseHeader("Allow")?.split(/, */).includes("POST"),
+		const hasPost = !!xh?.getResponseHeader("Allow")?.toUpperCase().split(/, */).includes("POST"),
 		      addHTMLParam = (param = "") => {
 			const pi = {
 				[node]: li(input({"value": param, "oninput": function(this: HTMLInputElement) {
