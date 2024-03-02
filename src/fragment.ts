@@ -388,7 +388,7 @@ const hash = window.location.hash.slice(1),
 			"x": isStr,
 			"y": isStr
 		})
-	      })))
+	})))
       })),
       configJSON = "config.json",
       loadConfig = () => HTTPRequest(configJSON, {"response": "json", "checker": configTG}).catch(() => ({"keys": []} as TypeGuardOf<typeof configTG>)),
