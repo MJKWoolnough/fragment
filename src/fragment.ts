@@ -678,5 +678,5 @@ if (hash === "CONFIG") {
 
 		return Promise.reject("Unknown content type");
 	})
-	.catch(err => document.body.textContent = "Error: " + err);
+	.catch(err => amendNode(document.body, "Error: " + err));
 }
