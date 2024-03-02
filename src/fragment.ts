@@ -458,7 +458,7 @@ if (hash === "CONFIG") {
 			const markdownHTML: NodeMap<string, TagItem> = Object.assign(new NodeMap<string, TagItem>(ul(), (a, b) => stringSort(a.tag, b.tag), (config.markdownHTML ?? []).map(([tag, ...params]) => [tag, addMarkdownHTMLItem(() => markdownHTML.delete(tag), tag, ...params)])), {
 				"toJSON": () => Array.from(markdownHTML.values()).map(v => [v.tag, ...(new Set<string>(v.params.map(p => p.param).filter(p => p)))])
 			      }),
-			      defaultEmpty = input({"type": "radio", "id": "empty_"+labelID, "name": "markdown_"+labelID, "checked": markdownHTML.size === 0,"onclick": () => config.markdownHTML = markdownHTML as any});
+			      defaultEmpty = input({"type": "radio", "id": "empty_"+labelID, "name": "markdown_"+labelID, "checked": markdownHTML.size === 0, "onclick": () => config.markdownHTML = markdownHTML as any});
 
 			if (markdownHTML.size) {
 				config.markdownHTML = markdownHTML as any;
