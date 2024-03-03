@@ -675,9 +675,9 @@ if (hash === "CONFIG") {
 
 		switch (firstChar) {
 		case 'p':
-			return config.embed ? amendNode(document.body, pre(decodeText(data))) : withMime(contents, "text/plain");
+			return config.embed ? amendNode(document.body, pre(decodeText(data))) : withMime(contents, "text/plain;charset=utf-8");
 		case 's':
-			return config.embed ? amendNode(document.body, img({"src": URL.createObjectURL(new Blob([data], {"type": "image/svg+xml"}))})) : withMime(contents, "image/svg+xml");
+			return config.embed ? amendNode(document.body, img({"src": URL.createObjectURL(new Blob([data], {"type": "image/svg+xml;charset=utf-8"}))})) : withMime(contents, "image/svg+xml;charset=utf-8");
 		case 'h':
 			return processToHTML(contents, text2DOM);
 		case 'm':
@@ -690,7 +690,7 @@ if (hash === "CONFIG") {
 		case 'u':
 			return parseTable(contents, "\t", firstChar === 'u');
 		case 'x':
-			return withMime(contents, "application/xml");
+			return withMime(contents, "application/xml;charset=utf-8");
 		}
 
 		return Promise.reject("Unknown content type");
