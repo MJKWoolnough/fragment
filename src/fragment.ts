@@ -396,6 +396,8 @@ const hash = window.location.hash.slice(1),
 	"markdownHTML": [
 		["a", "name"],
 		["details"],
+		["fieldset"],
+		["legend"],
 		["summary"]
 	]
       };
