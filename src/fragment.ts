@@ -198,7 +198,11 @@ const hash = window.location.hash.slice(1),
 				}}),
 				label("Only Blank", {"for": `F_${n}_2`})
 			])
-		      ], {"class": "F", "tabindex": "-1"}));
+		      ], {"class": "F", "tabindex": "-1", "onkeydown": (e: KeyboardEvent) => {
+			if (e.key === "Escape") {
+				(document.activeElement as HTMLElement | null)?.blur();
+			}
+		      }}));
 
 		filterLists.set(n, f);
 
