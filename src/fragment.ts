@@ -5,7 +5,7 @@ import {all as allBBCodeTags} from './lib/bbcode_tags.js';
 import {HTTPRequest} from './lib/conn.js';
 import {add} from './lib/css.js';
 import {amendNode} from './lib/dom.js';
-import {a, body, br, button, div, fieldset, h1, head, html, img, input, label, legend, li, pre, script, title, ul} from './lib/html.js';
+import {a, body, br, button, div, fieldset, h1, head, html, img, input, label, legend, li, pre, script, span, title, ul} from './lib/html.js';
 import pageLoad from './lib/load.js';
 import parseMarkdown from './lib/markdown.js';
 import {text2DOM} from './lib/misc.js';
@@ -472,13 +472,12 @@ if (hash === "CONFIG") {
 					button({"title": "Remove this Key", "onclick": () => keys.delete(config.name as string)}, "X")
 				]: "Base Config"),
 				label({"for": "embed_"+labelID}, "Embed Content"),
-				input({"id": "embed_"+labelID, "type": "checkbox", "checked": config.embed, "onclick": function(this: HTMLInputElement) {
+				span(input({"id": "embed_"+labelID, "type": "checkbox", "checked": config.embed, "onclick": function(this: HTMLInputElement) {
 					config.embed = this.checked;
-				}}),
-				br(),
+				}})),
 				label("Allowed Markdown HTML Tags"),
 				markdownHTML[node],
-				button({"title": "Add Allowed Markdown HTML Element", "onclick": () => {
+				span(button({"title": "Add Allowed Markdown HTML Element", "onclick": () => {
 					const tag = prompt("Enter HTML Tag name");
 
 					if (tag) {
@@ -489,17 +488,13 @@ if (hash === "CONFIG") {
 							markdownHTML.set(tag, addMarkdownHTMLItem(() => markdownHTML.delete(tag), tag));
 						}
 					}
-				}}, "+"),
-				div([
-					label({"for": "empty_"+labelID}, "Allow no HTML elements"),
-					defaultEmpty,
-					br(),
-					label({"for": "all_"+labelID}, "Allow all HTML elements"),
-					input({"type": "radio", "id": "all_"+labelID, "name": "markdown_"+labelID, "checked": config.markdownHTML === null, "onclick": () => config.markdownHTML = null}),
-					br(),
-					label({"for": "safe_"+labelID}, "name" in config ? "Use Base Config Setting" : "Allow safe HTML elements"),
-					input({"type": "radio", "id": "safe_"+labelID, "name": "markdown_"+labelID, "checked": config.markdownHTML === undefined, "onclick": () => delete config.markdownHTML})
-				])
+				}}, "+")),
+				label({"for": "empty_"+labelID}, "Allow no HTML elements"),
+				span(defaultEmpty),
+				label({"for": "all_"+labelID}, "Allow all HTML elements"),
+				span(input({"type": "radio", "id": "all_"+labelID, "name": "markdown_"+labelID, "checked": config.markdownHTML === null, "onclick": () => config.markdownHTML = null})),
+				label({"for": "safe_"+labelID}, "name" in config ? "Use Base Config Setting" : "Allow safe HTML elements"),
+				span(input({"type": "radio", "id": "safe_"+labelID, "name": "markdown_"+labelID, "checked": config.markdownHTML === undefined, "onclick": () => delete config.markdownHTML}))
 			      ]);
 		      },
 		      keys = Object.assign(new NodeMap<string, KeyItem>(div(), (a, b) => stringSort(a.config.name, b.config.name), config.keys.map(key => [key.name, {
@@ -512,8 +507,17 @@ if (hash === "CONFIG") {
 		config.keys = keys as any;
 
 		amendNode(document.head, add({
-			"label:after": {
-				"content": `":"`
+			"label": {
+				"text-align": "right",
+
+				":after": {
+					"content": `":"`
+				}
+			},
+			"fieldset": {
+				"display": "grid",
+				"grid-template-columns": "max-content 1fr",
+				"gap": "0 1em"
 			},
 			"ul": {
 				"list-style": "none",
@@ -523,8 +527,10 @@ if (hash === "CONFIG") {
 					"display": "none"
 				},
 
-				":not(:empty) ~ div": {
-					"display": "none"
+				":not(:empty)~": {
+					"label,span>input": {
+						"display": "none"
+					}
 				},
 
 				">li>ul": {
