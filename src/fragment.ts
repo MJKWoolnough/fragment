@@ -166,7 +166,7 @@ const hash = window.location.hash.slice(1),
 					})
 				] : [
 					input("", {"oninput": function(this: HTMLInputElement) {
-						min = parseInt(this.value);
+						min = parseFloat(this.value);
 						if (isNaN(min)) {
 							min = -Infinity;
 						}
@@ -175,7 +175,7 @@ const hash = window.location.hash.slice(1),
 					}}),
 					" ≤ x ≤ ",
 					input("", {"oninput": function(this: HTMLInputElement) {
-						max = parseInt(this.value);
+						max = parseFloat(this.value);
 						if (isNaN(max)) {
 							max = Infinity;
 						}
