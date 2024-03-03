@@ -173,7 +173,7 @@ const hash = window.location.hash.slice(1),
 
 						setNumberFilter();
 					}}),
-					" < x < ",
+					" ≤ x ≤ ",
 					input("", {"oninput": function(this: HTMLInputElement) {
 						max = parseInt(this.value);
 						if (isNaN(max)) {
