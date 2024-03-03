@@ -113,7 +113,7 @@ const hash = window.location.hash.slice(1),
 			amendNode(elm, [], {"class": Array.from(filters.entries()).every(([n, fn]) => fn(data[n] ?? "")) ? "": "H"});
 		}
 	      },
-	      makeToggleButton = (c: string, fn: (v: boolean) => void) => button(c, {"class": "t", "onclick": function(this: HTMLButtonElement) {
+	      makeToggleButton = (c: string, title: string, fn: (v: boolean) => void) => button(c, {"class": "t", title, "onclick": function(this: HTMLButtonElement) {
 		      fn(!this.classList.toggle("t"));
 	      }}),
 	      regexpSpecials = "\\/.*+?|()[]{}".split(""),
@@ -148,7 +148,7 @@ const hash = window.location.hash.slice(1),
 			li([
 				l,
 				sorters[n] === stringSort ? [
-					makeToggleButton("^", v => {
+					makeToggleButton("^", "Starts With", v => {
 						pre = v;
 						setTextFilter();
 					}),
@@ -156,11 +156,11 @@ const hash = window.location.hash.slice(1),
 						text = this.value;
 						setTextFilter();
 					}}),
-					makeToggleButton("$", v => {
+					makeToggleButton("$", "Ends With", v => {
 						post = v;
 						setTextFilter();
 					}),
-					makeToggleButton("i", v => {
+					makeToggleButton("i", "Case Sensitivity", v => {
 						caseInsensitive = v;
 						setTextFilter();
 					})
