@@ -42,7 +42,7 @@ const hash = window.location.hash.slice(1),
 	if (config.embed) {
 		document.replaceChild(htmlElement, document.documentElement);
 	} else {
-		withMime(htmlDoctype + htmlElement.outerHTML, "text/html");
+		withMime(htmlDoctype + htmlElement.outerHTML, "text/html;charset=utf-8");
 	}
       },
       makeTable = (data: string[][], firstRowIsTitle: boolean) => {
