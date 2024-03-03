@@ -519,6 +519,14 @@ if (hash === "CONFIG") {
 				"list-style": "none",
 				"margin": 0,
 
+				":empty": {
+					"display": "none"
+				},
+
+				":not(:empty) ~ div": {
+					"display": "none"
+				},
+
 				">li>ul": {
 					"display": "inline-block",
 					"padding": 0,
@@ -527,9 +535,6 @@ if (hash === "CONFIG") {
 						"display": "inline-block"
 					}
 				}
-			},
-			"ul:not(:empty) ~ div": {
-				"display": "none"
 			}
 		}).render());
 
