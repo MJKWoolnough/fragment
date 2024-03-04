@@ -9,7 +9,7 @@ import {a, body, br, button, div, fieldset, h1, head, html, img, input, label, l
 import pageLoad from './lib/load.js';
 import parseMarkdown from './lib/markdown.js';
 import {text2DOM} from './lib/misc.js';
-import {NodeArray, NodeMap, node, noSort, stringSort} from './lib/nodes.js';
+import {NodeArray, NodeMap, node, stringSort} from './lib/nodes.js';
 import parser, {processToEnd} from './lib/parser.js';
 import {And, Arr, Bool, Null, Obj, Or, Part, Str, Tuple, Val} from './lib/typeguard.js';
 
@@ -442,7 +442,7 @@ if (hash === "CONFIG") {
 			return pi;
 		      },
 		      addMarkdownHTMLItem = (removeFn: () => void, tag: string, ...params: string[]) => {
-			const paramsList = new NodeArray<ParamItem>(ul(), noSort, params.sort(stringSort).map(addHTMLParam));
+			const paramsList = new NodeArray<ParamItem>(ul(), params.sort(stringSort).map(addHTMLParam));
 
 			return {
 				[node]: li([
