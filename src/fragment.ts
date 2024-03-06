@@ -441,14 +441,14 @@ if (hash === "CONFIG") {
 
 			return pi;
 		      },
-		      addMarkdownHTMLItem = (removeFn: () => void, tag: string, ...params: string[]) => {
+		      addMarkdownHTMLItem = (removeFn: () => void, tag: string, ...params: string[]): TagItem => {
 			const paramsList = new NodeArray<ParamItem>(ul(), params.sort(stringSort).map(addHTMLParam));
 
 			return {
 				[node]: li([
 					button({"title": "Remove this Markdown HTML Element", "onclick": removeFn}, "X"),
 					label(tag),
-					paramsList[node],
+					paramsList,
 					button({"title": "Add HTML Attribute", "onclick": () => paramsList.push(addHTMLParam())}, "+"),
 					button({"title": "Remove Last HTML Attribute", "onclick": () => paramsList.pop()}, "-")
 				]),
@@ -461,7 +461,7 @@ if (hash === "CONFIG") {
 		      createConfigOptions = (config: TypeGuardOf<typeof optTG>) => {
 			labelID++;
 
-			const markdownHTML: NodeMap<string, TagItem> = Object.assign(new NodeMap<string, TagItem>(ul(), (a, b) => stringSort(a.tag, b.tag), (config.markdownHTML ?? []).map(([tag, ...params]) => [tag, addMarkdownHTMLItem(() => markdownHTML.delete(tag), tag, ...params)])), {
+			const markdownHTML: NodeMap<string, TagItem, HTMLUListElement> = Object.assign(new NodeMap(ul(), (a, b) => stringSort(a.tag, b.tag), (config.markdownHTML ?? []).map(([tag, ...params]) => [tag, addMarkdownHTMLItem(() => markdownHTML.delete(tag), tag, ...params)])), {
 				"toJSON": () => Array.from(markdownHTML.values()).map(v => [v.tag, ...(new Set<string>(v.params.map(p => p.param).filter(p => p)))])
 			      }),
 			      defaultEmpty = input({"type": "radio", "id": "empty_"+labelID, "name": "markdown_"+labelID, "checked": markdownHTML.size === 0, "onclick": () => config.markdownHTML = markdownHTML as any});
@@ -480,7 +480,7 @@ if (hash === "CONFIG") {
 					config.embed = this.checked;
 				}})),
 				label("Allowed Markdown HTML Tags"),
-				markdownHTML[node],
+				markdownHTML,
 				span(button({"title": "Add Allowed Markdown HTML Element", "onclick": () => {
 					const tag = prompt("Enter HTML Tag name");
 
