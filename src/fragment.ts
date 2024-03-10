@@ -574,15 +574,7 @@ if (hash === "CONFIG") {
 						      };
 
 						window.crypto.subtle.generateKey(al, true, ["sign", "verify"]).then(key => {
-							window.crypto.subtle.exportKey("pkcs8", key.privateKey).then(k => a({"download": name + ".pem", "href": URL.createObjectURL(new Blob(["-----BEGIN PRIVATE KEY-----\n" + Array.from(btoa(String.fromCharCode(...new Uint8Array(k)))).reduce((a, c) => {
-								if (a.at(-1)?.length === 64) {
-									a.push(c);
-								} else {
-									a[a.length-1] += c;
-								}
-
-								return a;
-							}, [""]).join("\n") + "\n-----END PRIVATE KEY-----"], {"type": "text/plain"}))}).click());
+							window.crypto.subtle.exportKey("pkcs8", key.privateKey).then(k => a({"download": name + ".pem", "href": URL.createObjectURL(new Blob(["-----BEGIN PRIVATE KEY-----\n" + btoa(String.fromCharCode(...new Uint8Array(k))).match(/.{1,64}/g)!.join("\n") + "\n-----END PRIVATE KEY-----"], {"type": "text/plain"}))}).click());
 							window.crypto.subtle.exportKey("jwk", key.publicKey).then(k => {
 								const c = {
 									name,
