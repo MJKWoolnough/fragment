@@ -665,7 +665,7 @@ if (hash === "CONFIG") {
 			.then(() => signedData);
 		}
 
-		return c.then(() => data);
+		return c.then(() => config.allowUnsigned ? data : Promise.reject("Fragment not signed"));
 	})
 	.then(data => {
 		if (!data.length) {
