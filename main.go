@@ -20,6 +20,7 @@ type Options struct {
 }
 
 type Config struct {
+	AllowUnsigned bool `json:"allowUnsigned"`
 	Options
 	Keys []struct {
 		Options
