@@ -477,6 +477,12 @@ if (hash === "CONFIG") {
 					`Key: ${config.name}`,
 					button({"title": "Remove this Key", "onclick": () => keys.delete(config.name as string)}, "X")
 				]: "Base Config"),
+				"allowUnsigned" in config ? [
+					label({"for": "allowUnsigned"}, "Allow Unsigned Fragments"),
+					span(input({"type": "checkbox", "id": "allowUnsigned", "checked": config.allowUnsigned, "onclick": function (this: HTMLInputElement) {
+						config.allowUnsigned = this.checked;
+					}}))
+				] : [],
 				label({"for": "embed_"+labelID}, "Embed Content"),
 				span(input({"id": "embed_"+labelID, "type": "checkbox", "checked": config.embed, "onclick": function(this: HTMLInputElement) {
 					config.embed = this.checked;
