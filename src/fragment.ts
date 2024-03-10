@@ -596,15 +596,13 @@ if (hash === "CONFIG") {
 			hasPost ? [
 				label({"for": "password"}, "Password for Saving"),
 				password,
-				button({"onclick": () => {
-					HTTPRequest(configJSON, {
-						"method": "POST",
-						"password": password.value,
-						"data": getConfigJSON()
-					})
-					.then(() => alert("Saved"))
-					.catch(alert);
-				}}, "Save"),
+				button({"onclick": () => HTTPRequest(configJSON, {
+					"method": "POST",
+					"password": password.value,
+					"data": getConfigJSON()
+				})
+				.then(() => alert("Saved"))
+				.catch(alert)}, "Save"),
 				br()
 			] : [],
 			button({"onclick": () => prompt("Copy this to your config file:", getConfigJSON())}, "Export Config")
