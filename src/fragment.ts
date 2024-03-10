@@ -674,10 +674,6 @@ if (hash === "CONFIG") {
 		return c.then(() => config.allowUnsigned ? data : Promise.reject("Fragment not signed"));
 	})
 	.then(data => {
-		if (!data.length) {
-			return Promise.reject("No Data");
-		}
-
 		const contents = data.slice(1),
 		      firstChar = String.fromCharCode(data[0]).toLowerCase();
 
