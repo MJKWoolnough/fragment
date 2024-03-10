@@ -380,6 +380,7 @@ const hash = window.location.hash.slice(1),
 	"embed": Or(isNull, isBool)
       })),
       configTG = And(optTG, Obj({
+	"allowUnsigned": isBool,
 	"keys": Arr(And(optTG, Obj({
 		"name": isStr,
 		"hash": Or(Val("SHA-256"), Val("SHA-384"), Val("SHA-512")),
@@ -395,7 +396,7 @@ const hash = window.location.hash.slice(1),
 	})))
       })),
       configJSON = "config.json",
-      loadConfig = () => HTTPRequest(configJSON, {"response": "json", "checker": configTG}).catch(() => ({"keys": []} as TypeGuardOf<typeof configTG>)),
+      loadConfig = () => HTTPRequest(configJSON, {"response": "json", "checker": configTG}).catch(() => ({"allowUnsigned": false, "keys": []} as TypeGuardOf<typeof configTG>)),
       config: TypeGuardOf<typeof optTG> = {
 	"markdownHTML": [
 		["a", "name"],
