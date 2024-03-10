@@ -397,7 +397,8 @@ const hash = window.location.hash.slice(1),
       })),
       configJSON = "config.json",
       loadConfig = () => HTTPRequest(configJSON, {"response": "json", "checker": configTG}).catch(() => ({"allowUnsigned": false, "keys": []} as TypeGuardOf<typeof configTG>)),
-      config: TypeGuardOf<typeof optTG> = {
+      config: TypeGuardOf<typeof optTG> & {"allowUnsigned": boolean} = {
+	"allowUnsigned": false,
 	"markdownHTML": [
 		["a", "name"],
 		["details"],
