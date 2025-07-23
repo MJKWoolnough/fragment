@@ -24,7 +24,7 @@ HEREDOC
 
 optionSet() {
 	if ${set[$1]}; then
-		echo "Cannot set same parameter twice."
+		echo "Cannot set same parameter twice.";
 		printHelp;
 
 		exit 1;
@@ -41,14 +41,15 @@ while [ $# -gt 0 ]; do
 		type="$(echo "$2" | tr A-Z a-z)";
 
 		case "$type" in
-		"m"|"b"|"p"|"h"|"s"|"c"|"t"|"x");;
+		"m"|"b"|"p"|"h"|"s"|"c"|"t"|"x")
+			;;
 		*)
 			{
 				echo "Invalid type";
 				printHelp;
 			} >&2;
 
-			exit 1;
+			exit 1;;
 		esac;
 
 		shift;;
@@ -106,7 +107,7 @@ if $firstRowTitles; then
 fi;
 
 if [ -n "$key" ]; then
-	type="$(echo "$type" | tr a-z A-Z)"
+	type="$(echo "$type" | tr a-z A-Z)";
 elif ${set[3]}; then
 	{
 		echo "Must set --key to use --hash flag.";
@@ -165,7 +166,7 @@ if [ -n "$key" ]; then
 
 		assert "$(( 2 * 16#$sLen ))" "${#s}" "Failed to read $(( 16#$sLen )) s bytes.";
 
-		assert "$(wc -c)" "0" "Unexpected data in signature."
+		assert "$(wc -c)" "0" "Unexpected data in signature.";
 
 		r="$(echo -n "$r" | sed -e 's/^00//')";
 		s="$(echo -n "$s" | sed -e 's/^00//')";
@@ -177,7 +178,7 @@ if [ -n "$key" ]; then
 			printf \\x"$byte";
 		done;
 
-		printf \\$(printf '%03o' $(( ${#r} >> 8 )))
+		printf \\$(printf '%03o' $(( ${#r} > > 8 )));
 		printf \\$(printf '%03o' $(( ${#s} & 255 )));
 	} >> "$tmpFile";
 fi;
