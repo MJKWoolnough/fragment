@@ -450,10 +450,10 @@ if (hash === "CONFIG") {
 			const paramsList = new NodeArray<ParamItem>(ul(), params.sort(stringSort).map(addHTMLParam));
 
 			return {
-				[node]: li([
+				[node]: li({},[
 					button({"title": "Remove this Markdown HTML Element", "onclick": removeFn}, "X"),
 					label(tag),
-					paramsList,
+					paramsList as ParamItem[],
 					button({"title": "Add HTML Attribute", "onclick": () => paramsList.push(addHTMLParam())}, "+"),
 					button({"title": "Remove Last HTML Attribute", "onclick": () => paramsList.pop()}, "-")
 				]),
