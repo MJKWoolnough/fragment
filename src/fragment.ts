@@ -48,7 +48,9 @@ const hash = window.location.hash.slice(1),
       makeTable = (data: string[][], firstRowIsTitle: boolean) => {
 	type Children = string | Element | Children[];
 
-	type DOMBind<T extends Element> = (child?: Children, params?: Record<string, string | Function>) => T;
+	type Params = Record<string, string | Function>;
+
+	type DOMBind<T extends Element> = (child?: Children, params?: Params) => T;
 
 	const max = Math.max(...data.map(r => r.length)),
 	      titles = firstRowIsTitle ? data.shift() ?? [] : [],
@@ -80,7 +82,8 @@ const hash = window.location.hash.slice(1),
 
 		return elem;
 	      },
-	      [a, button, input, label, li, table, tbody, td, th, thead, tr, ul] = "a button input label li table tbody td th thead tr ul".split(" ").map(e => (child?: Children, params?: Record<string, string | Function>) => amendNode(document.createElement(e), child, params)) as [DOMBind<HTMLElementTagNameMap["a"]>, DOMBind<HTMLElementTagNameMap["button"]>, DOMBind<HTMLElementTagNameMap["input"]>, DOMBind<HTMLElementTagNameMap["label"]>, DOMBind<HTMLElementTagNameMap["li"]>, DOMBind<HTMLElementTagNameMap["table"]>, DOMBind<HTMLElementTagNameMap["tbody"]>, DOMBind<HTMLElementTagNameMap["td"]>, DOMBind<HTMLElementTagNameMap["th"]>, DOMBind<HTMLElementTagNameMap["thead"]>, DOMBind<HTMLElementTagNameMap["tr"]>, DOMBind<HTMLElementTagNameMap["ul"]>],
+	      tags = <NS extends string>(ns: NS) => new Proxy({}, {"get": (_, element: string) => (child?: Children, params?: Params) => amendNode(document.createElementNS(ns, element), child, params)}) as NS extends "http://www.w3.org/1999/xhtml" ? {[K in keyof HTMLElementTagNameMap]: DOMBind<HTMLElementTagNameMap[K]>} : NS extends "http://www.w3.org/2000/svg" ? {[K in keyof SVGElementTagNameMap]: DOMBind<SVGElementTagNameMap[K]>} : NS extends "http://www.w3.org/1998/Math/MathML" ? {[K in keyof MathMLElementTagNameMap]: DOMBind<MathMLElementTagNameMap[K]>} : Record<string, DOMBind<Element>>,
+	      {a, button, input, label, li, table, tbody, td, th, thead, tr, ul} = tags("http://www.w3.org/1999/xhtml"),
 	      colName = (n: number): string => {
 		if (n < 26) {
 			return String.fromCharCode(64 + (n || 26));
