@@ -50,39 +50,19 @@ const hash = window.location.hash.slice(1),
 
 	type Params = Record<string, string | Function>;
 
-	type DOMBind<T extends Element> = (child?: Children, params?: Params) => T;
+	type DOMBind<T extends Element> = (Params?: Params | Children, child?: Children) => T;
 
 	const max = Math.max(...data.map(r => r.length)),
 	      titles = firstRowIsTitle ? data.shift() ?? [] : [],
-	      appendChildren = (elem: Element, child: Children) => {
-		if (child instanceof Array) {
-			for (const c of child) {
-				appendChildren(elem, c);
-			}
-		} else {
-			elem.append(child);
-		}
-	      },
-	      amendNode = <E extends Element>(elem: E, child?: Children, params?: Record<string, string | Function>): E => {
-		for (const [param, val] of Object.entries(params ?? {})) {
-			if (val instanceof Function) {
-				elem.addEventListener(param.slice(2) as keyof ElementEventMap, val as EventListener);
-			} else {
-				elem.setAttribute(param, val);
-			}
-		}
+	      amendNode = <T extends Element>(node: T, propertiesOrChildren: Params | Children, children?: Children) => {
+		const [p, c] = typeof propertiesOrChildren === "string" || propertiesOrChildren instanceof Node || propertiesOrChildren instanceof Array ? [{}, propertiesOrChildren] : [propertiesOrChildren, children ?? []];
 
-		if (child) {
-			if (typeof child === "string") {
-				elem.textContent = child;
-			} else {
-				appendChildren(elem, child);
-			}
-		}
+		Object.entries(p).forEach(([key, value]) => node[value instanceof Function ? "addEventListener" : "setAttribute"](value instanceof Function ? key.slice(2) : key, value as any));
+		node.append(...[c as Element].flat(Infinity));
 
-		return elem;
+		return node;
 	      },
-	      tags = <NS extends string>(ns: NS) => new Proxy({}, {"get": (_, element: string) => (child?: Children, params?: Params) => amendNode(document.createElementNS(ns, element), child, params)}) as NS extends "http://www.w3.org/1999/xhtml" ? {[K in keyof HTMLElementTagNameMap]: DOMBind<HTMLElementTagNameMap[K]>} : NS extends "http://www.w3.org/2000/svg" ? {[K in keyof SVGElementTagNameMap]: DOMBind<SVGElementTagNameMap[K]>} : NS extends "http://www.w3.org/1998/Math/MathML" ? {[K in keyof MathMLElementTagNameMap]: DOMBind<MathMLElementTagNameMap[K]>} : Record<string, DOMBind<Element>>,
+	      tags = <NS extends string>(ns: NS) => new Proxy({}, {"get": (_, element: string) => (params: Params | Children = {}, child?: Children) => amendNode(document.createElementNS(ns, element), params, child)}) as NS extends "http://www.w3.org/1999/xhtml" ? {[K in keyof HTMLElementTagNameMap]: DOMBind<HTMLElementTagNameMap[K]>} : NS extends "http://www.w3.org/2000/svg" ? {[K in keyof SVGElementTagNameMap]: DOMBind<SVGElementTagNameMap[K]>} : NS extends "http://www.w3.org/1998/Math/MathML" ? {[K in keyof MathMLElementTagNameMap]: DOMBind<MathMLElementTagNameMap[K]>} : Record<string, DOMBind<Element>>,
 	      {a, button, input, label, li, table, tbody, td, th, thead, tr, ul} = tags("http://www.w3.org/1999/xhtml"),
 	      colName = (n: number): string => {
 		if (n < 26) {
@@ -113,12 +93,12 @@ const hash = window.location.hash.slice(1),
 		document.body.classList.toggle("b", true);
 
 		for (const [elm, data] of dataMap.entries()) {
-			amendNode(elm, [], {"class": Array.from(filters.entries()).every(([n, fn]) => fn(data[n] ?? "")) ? "": "H"});
+			amendNode(elm, {"class": Array.from(filters.entries()).every(([n, fn]) => fn(data[n] ?? "")) ? "": "H"});
 		}
 	      },
-	      makeToggleButton = (c: string, title: string, fn: (v: boolean) => void) => button(c, {"class": "t", title, "onclick": function(this: HTMLButtonElement) {
+	      makeToggleButton = (c: string, title: string, fn: (v: boolean) => void) => button({"class": "t", title, "onclick": function(this: HTMLButtonElement) {
 		      fn(!this.classList.toggle("t"));
-	      }}),
+	      }}, c),
 	      regexpSpecials = "\\/.*+?|()[]{}".split(""),
 	      makeFilterDiv = (n: number) => {
 		let pre = false,
@@ -146,8 +126,12 @@ const hash = window.location.hash.slice(1),
 			filters.set(n, numberFilter);
 			runFilters();
 		      },
-		      l = input([], {"type": "radio", "name": "F_"+n, "checked": "", "onclick": sorters[n] === stringSort ? setTextFilter : setNumberFilter}),
-		      f = document.body.appendChild(ul([
+		      l = input({"type": "radio", "name": "F_"+n, "checked": "", "onclick": sorters[n] === stringSort ? setTextFilter : setNumberFilter}),
+		      f = document.body.appendChild(ul({"class": "F", "tabindex": "-1", "onkeydown": (e: KeyboardEvent) => {
+			if (e.key === "Escape") {
+				(document.activeElement as HTMLElement | null)?.blur();
+			}
+		      }}, [
 			li([
 				l,
 				sorters[n] === stringSort ? [
@@ -155,7 +139,7 @@ const hash = window.location.hash.slice(1),
 						pre = v;
 						setTextFilter();
 					}),
-					input("", {"type": "text", "oninput": function(this: HTMLInputElement) {
+					input({"type": "text", "oninput": function(this: HTMLInputElement) {
 						text = this.value;
 						setTextFilter();
 					}}),
@@ -168,7 +152,7 @@ const hash = window.location.hash.slice(1),
 						setTextFilter();
 					})
 				] : [
-					input("", {"oninput": function(this: HTMLInputElement) {
+					input({"oninput": function(this: HTMLInputElement) {
 						min = parseFloat(this.value);
 						if (isNaN(min)) {
 							min = -Infinity;
@@ -177,7 +161,7 @@ const hash = window.location.hash.slice(1),
 						setNumberFilter();
 					}}),
 					" ≤ x ≤ ",
-					input("", {"oninput": function(this: HTMLInputElement) {
+					input({"oninput": function(this: HTMLInputElement) {
 						max = parseFloat(this.value);
 						if (isNaN(max)) {
 							max = Infinity;
@@ -188,24 +172,20 @@ const hash = window.location.hash.slice(1),
 				]
 			]),
 			li([
-				input([], {"type": "radio", "name": "F_"+n, "id": `F_${n}_1`, "onclick": () => {
+				input({"type": "radio", "name": "F_"+n, "id": `F_${n}_1`, "onclick": () => {
 					filters.set(n, isNotBlankFilter);
 					runFilters();
 				}}),
-				label("Remove Blank", {"for": `F_${n}_1`})
+				label({"for": `F_${n}_1`}, "Remove Blank")
 			]),
 			li([
-				input([], {"type": "radio", "name": "F_"+n, "id": `F_${n}_2`, "onclick": () => {
+				input({"type": "radio", "name": "F_"+n, "id": `F_${n}_2`, "onclick": () => {
 					filters.set(n, isBlankFilter);
 					runFilters();
 				}}),
-				label("Only Blank", {"for": `F_${n}_2`})
+				label({"for": `F_${n}_2`}, "Only Blank")
 			])
-		      ], {"class": "F", "tabindex": "-1", "onkeydown": (e: KeyboardEvent) => {
-			if (e.key === "Escape") {
-				(document.activeElement as HTMLElement | null)?.blur();
-			}
-		      }}));
+		      ]));
 
 		filterLists.set(n, f);
 
@@ -217,7 +197,7 @@ const hash = window.location.hash.slice(1),
 	    exportChar = ",";
 
 	amendNode(document.body, [
-		button("Reset Table", {"class": "B", "onclick": () => {
+		button({"class": "B", "onclick": () => {
 			sorted = -1;
 
 			document.body.classList.remove("b");
@@ -225,10 +205,10 @@ const hash = window.location.hash.slice(1),
 			filterLists.clear();
 			filters.clear();
 
-			amendNode(tbodyElement, Array.from(dataMap.keys()).map(row => amendNode(row, [], {"class": ""})));
-		}}),
+			amendNode(tbodyElement, {"class": ""}, Array.from(dataMap.keys()).map(row => amendNode(row, [])));
+		}}, "Reset Table"),
 		table([
-			thead(Array.from({"length": max}, (_, n) => th(titles[n] ?? colName(n + 1), {"onclick": function (this: Element) {
+			thead(Array.from({"length": max}, (_, n) => th({"onclick": function (this: Element) {
 				const classes = this.classList;
 
 				document.body.classList.toggle("b", true);
@@ -248,15 +228,15 @@ const hash = window.location.hash.slice(1),
 			}, "oncontextmenu": (e: MouseEvent) => {
 				e.preventDefault();
 
-				amendNode(filterLists.get(n) ?? makeFilterDiv(n), [], {"style": `left:${e.clientX}px;top:${e.clientY}px`}).focus();
-			}}))),
+				amendNode(filterLists.get(n) ?? makeFilterDiv(n), {"style": `left:${e.clientX}px;top:${e.clientY}px`}).focus();
+			}}, titles[n] ?? colName(n + 1)))),
 			tbodyElement
 		]),
-		label("CSV", {"for": "C"}),
-		input("", {"id": "C", "type": "radio", "checked": "", "name": "E", "onclick": () => exportChar = ","}),
-		label("TSV", {"for": "T"}),
-		input("", {"id": "T", "type": "radio", "name": "E", "onclick": () => exportChar = "\t"}),
-		button("Export Table", {"onclick": () => a("", {"href": URL.createObjectURL(new Blob([(titles.length ? encodeRow(titles) + "\n" : "") + Array.from(tbodyElement.children).filter(e => dataMap.has(e)).map(row => encodeRow(dataMap.get(row)!)).join("\n")], {"type": "text/csv;charset=utf-8"})), "download": "table.csv"}).click()})
+		label({"for": "C"}, "CSV"),
+		input({"id": "C", "type": "radio", "checked": "", "name": "E", "onclick": () => exportChar = ","}),
+		label({"for": "T"}, "TSV"),
+		input({"id": "T", "type": "radio", "name": "E", "onclick": () => exportChar = "\t"}),
+		button({"onclick": () => a({"href": URL.createObjectURL(new Blob([(titles.length ? encodeRow(titles) + "\n" : "") + Array.from(tbodyElement.children).filter(e => dataMap.has(e)).map(row => encodeRow(dataMap.get(row)!)).join("\n")], {"type": "text/csv;charset=utf-8"})), "download": "table.csv"}).click()}, "Export Table")
 	]);
       },
       sm = "\"",
