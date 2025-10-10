@@ -8,7 +8,11 @@ import (
 	"net/http"
 	"os"
 	"sync"
+
+	"vimagination.zapto.org/httpfile"
 )
+
+const defaultConfig = `{"allowUnsigned":false,"keys":[]}`
 
 type Options struct {
 	MarkdownHTML json.RawMessage `json:"markdownHTML,omitempty"`
@@ -43,15 +47,10 @@ type ConfigHandler struct {
 	pass string
 	opts string
 
-	sync.RWMutex
+	*httpfile.File
+
+	mu   sync.Mutex
 	path string
-}
-
-func (c *ConfigHandler) Get(w http.ResponseWriter, r *http.Request) {
-	c.RLock()
-	defer c.RUnlock()
-
-	http.ServeFile(w, r, c.path)
 }
 
 func (c *ConfigHandler) Post(w http.ResponseWriter, r *http.Request) {
@@ -78,10 +77,8 @@ func (c *ConfigHandler) post(w http.ResponseWriter, r *http.Request) error {
 		return ErrInvalidPasswordCode
 	}
 
-	c.Lock()
-	defer c.Unlock()
-
 	var conf Config
+
 	if err := json.NewDecoder(r.Body).Decode(&conf); err != nil {
 		return Error{
 			Code:  http.StatusBadRequest,
@@ -89,20 +86,32 @@ func (c *ConfigHandler) post(w http.ResponseWriter, r *http.Request) error {
 		}
 	}
 
-	f, err := os.Create(c.path)
-	if err != nil {
-		return err
-	}
-
-	defer f.Close()
+	f := c.File.Create()
 
 	if err := json.NewEncoder(f).Encode(c); err != nil {
 		return err
 	}
 
+	f.Close()
+
+	go c.saveConfig()
+
 	w.WriteHeader(http.StatusNoContent)
 
 	return nil
+}
+
+func (c *ConfigHandler) saveConfig() {
+	c.mu.Lock()
+	c.mu.Unlock()
+
+	f, err := os.Create(c.path)
+	if err != nil {
+		return
+	}
+	defer f.Close()
+
+	c.WriteTo(f)
 }
 
 func (c *ConfigHandler) Options(w http.ResponseWriter, _ *http.Request) {
