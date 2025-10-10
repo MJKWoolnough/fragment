@@ -10,6 +10,7 @@ import (
 	"net/http"
 	"os"
 	"strings"
+	"sync"
 
 	"vimagination.zapto.org/httpgzip"
 	"vimagination.zapto.org/tsserver"
@@ -84,10 +85,14 @@ type config struct {
 	pass string
 	opts string
 
+	sync.RWMutex
 	path string
 }
 
 func (c *config) get(w http.ResponseWriter, r *http.Request) {
+	c.RLock()
+	defer c.RUnlock()
+
 	http.ServeFile(w, r, c.path)
 }
 
@@ -108,6 +113,9 @@ func (c *config) post(w http.ResponseWriter, r *http.Request) {
 
 		return
 	}
+
+	c.Lock()
+	defer c.Unlock()
 
 	var conf Config
 	if err := json.NewDecoder(r.Body).Decode(&conf); err != nil {
