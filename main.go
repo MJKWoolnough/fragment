@@ -1,15 +1,11 @@
 package main
 
 import (
-	"errors"
 	"flag"
 	"fmt"
-	"io/fs"
 	"net/http"
 	"os"
-	"strings"
 
-	"vimagination.zapto.org/httpfile"
 	"vimagination.zapto.org/httpgzip"
 	"vimagination.zapto.org/tsserver"
 )
@@ -29,32 +25,15 @@ func run() error {
 	flag.StringVar(&path, "c", os.Getenv("CONFIG_FILE"), "Configuration File")
 	flag.Parse()
 
-	if path == "" {
-		return ErrConfigRequired
+	c, err := NewConfigHandler(path, pass)
+	if err != nil {
+		return err
 	}
 
-	data, err := os.ReadFile(path)
-	if errors.Is(err, fs.ErrNotExist) {
-		data = []byte(defaultConfig)
-	} else if err != nil {
-		return fmt.Errorf("error reading config: %w", err)
-	}
-
-	pass = strings.ToUpper(pass)
-
-	c := ConfigHandler{
-		pass: pass,
-		opts: "OPTIONS, GET, HEAD",
-		path: path,
-		File: httpfile.NewWithData("config.json", data),
-	}
-
-	http.Handle(http.MethodGet+"/config.json", &c)
+	http.Handle(http.MethodGet+"/config.json", c)
 	http.Handle(http.MethodOptions+"/config.json", http.HandlerFunc(c.Options))
 
 	if pass != "" {
-		c.opts = "OPTIONS, GET, HEAD, POST"
-
 		http.Handle(http.MethodPost+"/config.json", http.HandlerFunc(c.Post))
 	}
 

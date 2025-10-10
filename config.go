@@ -5,8 +5,10 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"io/fs"
 	"net/http"
 	"os"
+	"strings"
 	"sync"
 
 	"vimagination.zapto.org/httpfile"
@@ -51,6 +53,33 @@ type ConfigHandler struct {
 
 	mu   sync.Mutex
 	path string
+}
+
+func NewConfigHandler(path, pass string) (*ConfigHandler, error) {
+	if path == "" {
+		return nil, ErrConfigRequired
+	}
+
+	data, err := os.ReadFile(path)
+	if errors.Is(err, fs.ErrNotExist) {
+		data = []byte(defaultConfig)
+	} else if err != nil {
+		return nil, fmt.Errorf("error reading config: %w", err)
+	}
+
+	opts := "OPTIONS, GET, HEAD"
+
+	if pass != "" {
+		pass = strings.ToUpper(pass)
+		opts = "OPTIONS, GET, HEAD, POST"
+	}
+
+	return &ConfigHandler{
+		pass: pass,
+		opts: opts,
+		path: path,
+		File: httpfile.NewWithData("config.json", data),
+	}, nil
 }
 
 func (c *ConfigHandler) Post(w http.ResponseWriter, r *http.Request) {
