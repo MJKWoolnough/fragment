@@ -5,9 +5,6 @@ import (
 	"fmt"
 	"net/http"
 	"os"
-
-	"vimagination.zapto.org/httpgzip"
-	"vimagination.zapto.org/tsserver"
 )
 
 func main() {
@@ -31,7 +28,7 @@ func run() error {
 	}
 
 	http.Handle("/config.json", c)
-	http.Handle("/", httpgzip.FileServer(http.FS(tsserver.WrapFS(os.DirFS("./src")))))
+	http.Handle("/", index)
 
 	return http.ListenAndServe(":8080", nil)
 }
