@@ -30,13 +30,7 @@ func run() error {
 		return err
 	}
 
-	http.Handle(http.MethodGet+"/config.json", c)
-	http.Handle(http.MethodOptions+"/config.json", http.HandlerFunc(c.Options))
-
-	if pass != "" {
-		http.Handle(http.MethodPost+"/config.json", http.HandlerFunc(c.Post))
-	}
-
+	http.Handle("/config.json", c)
 	http.Handle("/", httpgzip.FileServer(http.FS(tsserver.WrapFS(os.DirFS("./src")))))
 
 	return http.ListenAndServe(":8080", nil)

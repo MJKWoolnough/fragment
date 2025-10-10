@@ -49,7 +49,8 @@ type ConfigHandler struct {
 	pass string
 	opts string
 
-	*httpfile.File
+	file *httpfile.File
+	http.ServeMux
 
 	mu   sync.Mutex
 	path string
@@ -67,19 +68,24 @@ func NewConfigHandler(path, pass string) (*ConfigHandler, error) {
 		return nil, fmt.Errorf("error reading config: %w", err)
 	}
 
-	opts := "OPTIONS, GET, HEAD"
-
-	if pass != "" {
-		pass = strings.ToUpper(pass)
-		opts = "OPTIONS, GET, HEAD, POST"
+	c := &ConfigHandler{
+		pass: pass,
+		opts: "OPTIONS, GET, HEAD",
+		path: path,
+		file: httpfile.NewWithData("config.json", data),
 	}
 
-	return &ConfigHandler{
-		pass: pass,
-		opts: opts,
-		path: path,
-		File: httpfile.NewWithData("config.json", data),
-	}, nil
+	c.Handle(http.MethodGet+" /", c.file)
+	c.Handle(http.MethodOptions+" /", http.HandlerFunc(c.Options))
+
+	if pass != "" {
+		c.Handle(http.MethodPost+" /", http.HandlerFunc(c.Post))
+
+		c.pass = strings.ToUpper(c.pass)
+		c.opts = "OPTIONS, GET, HEAD, POST"
+	}
+
+	return c, nil
 }
 
 func (c *ConfigHandler) Post(w http.ResponseWriter, r *http.Request) {
@@ -115,7 +121,7 @@ func (c *ConfigHandler) post(w http.ResponseWriter, r *http.Request) error {
 		}
 	}
 
-	f := c.File.Create()
+	f := c.file.Create()
 
 	if err := json.NewEncoder(f).Encode(c); err != nil {
 		return err
@@ -140,7 +146,7 @@ func (c *ConfigHandler) saveConfig() {
 	}
 	defer f.Close()
 
-	c.WriteTo(f)
+	c.file.WriteTo(f)
 }
 
 func (c *ConfigHandler) Options(w http.ResponseWriter, _ *http.Request) {

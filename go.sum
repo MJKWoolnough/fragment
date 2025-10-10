@@ -1,5 +1,7 @@
 vimagination.zapto.org/httpencoding v1.1.3 h1:dKEht8jZzsKwy8PJuecPfTh+OT4SsJpcdBKR7+NTXcA=
 vimagination.zapto.org/httpencoding v1.1.3/go.mod h1:fq9lz+BUGP+dYUSzWTMcXPMnLNWH9x9c4N5x6haH5e8=
+vimagination.zapto.org/httpfile v1.1.3 h1:jVY46dSepOmw6kO9WQxu43GKzvEfscqYHci2PfogwUk=
+vimagination.zapto.org/httpfile v1.1.3/go.mod h1:ClcCL5LE40iCk9yyC3MfncFEC/cOubhPh37jiy2yh3w=
 vimagination.zapto.org/httpgzip v1.1.1 h1:QE4DkEIZkb3pyLjMH0LYLz6brPMAUYwylC9ipQsXwTE=
 vimagination.zapto.org/httpgzip v1.1.1/go.mod h1:rf2K1XONnIazaG4hLAdFHx08640g7tM1oVcUoE7N3tQ=
 vimagination.zapto.org/javascript v1.5.1 h1:ykiuPlQL6NCjryMiT9a1iLjoJX9ATS0pgUtjXqCbkVI=
