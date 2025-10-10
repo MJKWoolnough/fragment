@@ -6,7 +6,6 @@ import (
 	"errors"
 	"flag"
 	"fmt"
-	"io"
 	"net/http"
 	"os"
 	"strings"
@@ -67,18 +66,23 @@ func run() error {
 		path: path,
 	}
 
-	http.Handle(http.MethodGet+"/config.json", http.HandlerFunc(c.get))
-	http.Handle(http.MethodOptions+"/config.json", http.HandlerFunc(c.options))
+	http.Handle(http.MethodGet+"/config.json", http.HandlerFunc(c.Get))
+	http.Handle(http.MethodOptions+"/config.json", http.HandlerFunc(c.Options))
 
 	if pass != "" {
 		c.opts = "OPTIONS, GET, HEAD, POST"
 
-		http.Handle(http.MethodPost+"/config.json", http.HandlerFunc(c.post))
+		http.Handle(http.MethodPost+"/config.json", http.HandlerFunc(c.Post))
 	}
 
 	http.Handle("/", httpgzip.FileServer(http.FS(tsserver.WrapFS(os.DirFS("./src")))))
 
 	return http.ListenAndServe(":8080", nil)
+}
+
+type Error struct {
+	Code int
+	error
 }
 
 type config struct {
@@ -89,29 +93,35 @@ type config struct {
 	path string
 }
 
-func (c *config) get(w http.ResponseWriter, r *http.Request) {
+func (c *config) Get(w http.ResponseWriter, r *http.Request) {
 	c.RLock()
 	defer c.RUnlock()
 
 	http.ServeFile(w, r, c.path)
 }
 
-func (c *config) post(w http.ResponseWriter, r *http.Request) {
+func (c *config) Post(w http.ResponseWriter, r *http.Request) {
+	if err := c.post(w, r); err != nil {
+		var errc Error
+
+		if errors.As(err, &errc) {
+			http.Error(w, errc.Error(), errc.Code)
+
+			return
+		}
+
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+	}
+}
+
+func (c *config) post(w http.ResponseWriter, r *http.Request) error {
 	_, password, ok := r.BasicAuth()
 	if !ok {
-		w.WriteHeader(http.StatusUnauthorized)
-
-		io.WriteString(w, "Password Required")
-
-		return
+		return ErrPasswordRequiredCode
 	}
 
 	if c.pass != fmt.Sprintf("%X", sha256.Sum256([]byte(password))) {
-		w.WriteHeader(http.StatusForbidden)
-
-		io.WriteString(w, "Invalid Password")
-
-		return
+		return ErrInvalidPasswordCode
 	}
 
 	c.Lock()
@@ -119,38 +129,44 @@ func (c *config) post(w http.ResponseWriter, r *http.Request) {
 
 	var conf Config
 	if err := json.NewDecoder(r.Body).Decode(&conf); err != nil {
-		w.WriteHeader(http.StatusBadRequest)
-
-		io.WriteString(w, err.Error())
-
-		return
+		return Error{
+			Code:  http.StatusBadRequest,
+			error: err,
+		}
 	}
 
 	f, err := os.Create(c.path)
 	if err != nil {
-		w.WriteHeader(http.StatusInternalServerError)
-
-		io.WriteString(w, err.Error())
-
-		return
+		return err
 	}
 
 	defer f.Close()
 
 	if err := json.NewEncoder(f).Encode(c); err != nil {
-		w.WriteHeader(http.StatusInternalServerError)
-
-		io.WriteString(w, err.Error())
-
-		return
+		return err
 	}
 
 	w.WriteHeader(http.StatusNoContent)
+
+	return nil
 }
 
-func (c *config) options(w http.ResponseWriter, _ *http.Request) {
+func (c *config) Options(w http.ResponseWriter, _ *http.Request) {
 	w.Header().Set("Allow", c.opts)
 	w.WriteHeader(http.StatusNoContent)
 }
 
-var ErrConfigRequired = errors.New("config location is required")
+var (
+	ErrConfigRequired   = errors.New("config location is required")
+	ErrPasswordRequired = errors.New("password required")
+	ErrInvalidPassword  = errors.New("invalid password")
+
+	ErrPasswordRequiredCode = Error{
+		Code:  http.StatusForbidden,
+		error: ErrPasswordRequired,
+	}
+	ErrInvalidPasswordCode = Error{
+		Code:  http.StatusForbidden,
+		error: ErrInvalidPassword,
+	}
+)
