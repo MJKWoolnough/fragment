@@ -8,6 +8,8 @@ vimagination.zapto.org/httpgzip v1.1.1 h1:QE4DkEIZkb3pyLjMH0LYLz6brPMAUYwylC9ipQ
 vimagination.zapto.org/httpgzip v1.1.1/go.mod h1:rf2K1XONnIazaG4hLAdFHx08640g7tM1oVcUoE7N3tQ=
 vimagination.zapto.org/javascript v1.5.1 h1:ykiuPlQL6NCjryMiT9a1iLjoJX9ATS0pgUtjXqCbkVI=
 vimagination.zapto.org/javascript v1.5.1/go.mod h1:VHox5R23pekFQihRLxhfKh3lvY9TbGhG5KhPtMnM2kw=
+vimagination.zapto.org/jspacker v1.0.0 h1:kJvdbCpneaZfb5WwdBbfcQBhBI61O7qsidxLpW1jb04=
+vimagination.zapto.org/jspacker v1.0.0/go.mod h1:x4i0GqaoI9ExllqQ+21gQljOpUE+3yCmgtsCY1xwQWw=
 vimagination.zapto.org/memfs v1.0.0 h1:uOami0c0ZGYiMe7yy2T78xwe39cL4kQXXgrjCqdDN+Y=
 vimagination.zapto.org/memfs v1.0.0/go.mod h1:7nxyPwJQ5H79BQrz2j1mPE4Bx0jo8QUsZfD2sZtFACA=
 vimagination.zapto.org/parser v1.2.2 h1:LdihVnnzb7m2e0caKm2Zsj+8IJiUKW2ZCK7b/+XmpSo=
